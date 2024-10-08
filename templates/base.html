@@ -1,0 +1,224 @@
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>RK FoodStop</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+          crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+
+    <style>
+        /* Custom Styles for the Navbar */
+        .navbar {
+            background-color: #007bff;
+        }
+        .navbar-brand {
+            color: white !important;
+            font-weight: bold;
+        }
+        .navbar-nav .nav-link {
+            color: white !important;
+        }
+        .navbar-nav .nav-link:hover {
+            color: #f8f9fa !important;
+        }
+
+        /* Add Cart Icon to the Navbar */
+        .cart-icon {
+            position: relative;
+            font-size: 1.5rem;
+            color: white;
+        }
+        .cart-count {
+            position: absolute;
+            top: -8px;
+            right: -10px;
+            background-color: red;
+            color: white;
+            border-radius: 50%;
+            padding: 3px 6px;
+            font-size: 0.8rem;
+        }
+
+        /* Hover Effects for Menu Items */
+        .menu-section {
+            margin-top: 2rem;
+        }
+
+        .menu-section h2 {
+            text-align: center;
+            font-size: 2rem;
+            color: #007bff;
+            margin-bottom: 1.5rem;
+        }
+
+        .menu-item {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 1rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .menu-item img {
+            max-width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .menu-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .menu-item h5 {
+            font-weight: bold;
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .menu-item p {
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        .menu-item strong {
+            font-size: 1rem;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light">
+    <a class="navbar-brand" href="{% url 'base' %}">RKFoodStop</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                    {% if request.user.is_staff %}
+                    <a class="nav-link" href="{% url 'admin:index' %}">Admin</a>
+                    {% else %}
+                    <a class="nav-link" href="{% url 'profile' request.user.id %}">Profile</a>
+                    {% endif %}
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'logout' %}">logout</a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'order_section' %}">orders</a>
+            </li>
+        </ul>
+
+        <!-- Cart Icon -->
+        <a href="{% url 'cart_view' %}" class="cart-icon">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="cart-count">{{no_of_cart_item}}</span>
+        </a>
+
+        <!-- Search Form -->
+        <form action="{% url 'search_item' %}" method="post" class="form-inline my-2 my-lg-0 ml-3">
+            {% csrf_token %}
+            <input class="form-control mr-sm-2" type="search" placeholder="Search item" aria-label="Search" name="query_item">
+            <button class="btn btn-outline-light my-2 my-sm-0" type="submit">Search</button>
+        </form>
+    </div>
+</nav>
+
+<!-- Content -->
+<div class="container">
+    <!-- Breakfast Section -->
+    <div class="menu-section">
+        <h2>Breakfast Menu</h2>
+        <div class="row">
+            {% for item in menu_items %}
+            {% if item.menu.menu_title|lower == "breakfast" %}
+            <div class="col-sm-12 col-md-6 col-lg-4">
+                <div class="menu-item">
+                    <a href="{% url 'detail_view' item.slug %}">
+                        <img src="{{ item.image.url }}" alt="{{ item.name }}">
+                    </a>
+                    <h5>{{ item.name }}</h5>
+                    <p>{{ item.description }}</p>
+                    <p><strong>{{ item.price }} Rs.</strong></p>
+                    <form method="POST" action="{% url 'add_to_cart' item.id %}">
+                        {% csrf_token %}
+                        <button class="btn btn-primary btn-block" type="submit" name="add">Order</button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Lunch Section -->
+    <div class="menu-section">
+        <h2>Lunch Menu</h2>
+        <div class="row">
+            {% for item in menu_items %}
+            {% if item.menu.menu_title|lower == "lunch" %}
+            <div class="col-sm-12 col-md-6 col-lg-4">
+                <div class="menu-item">
+                    <a href="{% url 'detail_view' item.slug %}">
+                        <img src="{{ item.image.url }}" alt="{{ item.name }}">
+                    </a>
+                    <h5>{{ item.name }}</h5>
+                    <p>{{ item.description }}</p>
+                    <p><strong>{{ item.price }} Rs.</strong></p>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <button class="btn btn-primary btn-block" type="submit" name="add">Add to Cart</button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Dinner Section -->
+    <div class="menu-section">
+        <h2>Dinner Menu</h2>
+        <div class="row">
+            {% for item in menu_items %}
+            {% if item.menu.menu_title|lower == "dinner" %}
+            <div class="col-sm-12 col-md-6 col-lg-4">
+                <div class="menu-item">
+                    <a href="{% url 'detail_view' item.slug %}">
+                        <img src="{{ item.image.url }}" alt="{{ item.name }}">
+                    </a>
+                    <h5>{{ item.name }}</h5>
+                    <p>{{ item.description }}</p>
+                    <p><strong>{{ item.price }} Rs.</strong></p>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <button class="btn btn-primary btn-block" type="submit" name="add">Add to Cart</button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS, Popper.js, and jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" crossorigin="anonymous"></script>
+
+</body>
+</html>

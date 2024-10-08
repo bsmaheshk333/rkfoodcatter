@@ -1,0 +1,37 @@
+
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart - RK FoodStop</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+          crossorigin="anonymous">
+
+</head>
+<body>
+    <h2>Order Confirmation</h2>
+    {% if order.payment_method == "cash" %}
+        <p>Thank you for your order! Your order ID is {{ order.id }}.</p>
+        <p>Payment Method: {{ order.payment_method }}</p>
+        <p>Total Amount: {{ order.total_amount }} Rs.</p>
+        <a href="{% url 'base' %}">Back to Menu</a>
+    {% endif %}
+    {% if order.payment_method == "online" %}
+    <span>
+        <p>online payment gateway is not available</p>
+        <a href="{% url 'base' %}">Go to Menu</a>
+    </span>
+    {% endif %}
+
+    {% if order.payment_method == "credit card" %}
+    <span>
+        <p>credit card not accepted yet.</p>
+        <a href="{% url 'base' %}">Go to Menu</a>
+    </span>
+    {% endif %}
+
+
+</body>
+</html>

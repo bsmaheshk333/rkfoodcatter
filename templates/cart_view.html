@@ -1,0 +1,145 @@
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart - RK FoodStop</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+          crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static 'css/cart.css' %}">
+    <style>
+        .cart-container {
+            margin-top: 40px;
+        }
+        .cart-item {
+            border-bottom: 1px solid #ddd;
+            padding: 20px 0;
+            display: flex;
+            align-items: center;
+        }
+        .cart-item img {
+            max-width: 150px;
+            border-radius: 8px;
+        }
+        .cart-item-details {
+            margin-left: 20px;
+        }
+        .cart-item h5 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+        .cart-item p {
+            font-size: 1rem;
+            color: #555;
+        }
+        .cart-item .quantity-input {
+            width: 50px;
+            text-align: center;
+        }
+        .cart-item .remove-item {
+
+            margin-left: auto;
+            cursor: pointer;
+        }
+        .cart-summary {
+            margin-top: 40px;
+            background-color: #f9f9f9;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .cart-summary h4 {
+            font-size: 1.75rem;
+        }
+        .cart-summary p {
+            font-size: 1.2rem;
+        }
+        .checkout-btn {
+            margin-top: 20px;
+            background-color: #28a745;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div class="container cart-container">
+    <!-- Display messages -->
+    {% if messages %}
+        <div class="alert alert-dismissible fade show" role="alert">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    {% endif %}
+    <!--  cart view content  -->
+<div class="container cart-container">
+    <h2 class="text-center my-4">Food Cart</h2>
+    {% if cart_item %}
+    <div class="row">
+        <div class="col-md-8">
+            {% for item in cart_item %}
+            <div class="cart-item mb-4 p-3 border rounded shadow-sm">
+                <img src="{{ item.item.image.url }}" alt="{{ item.item.name }}" class="img-fluid rounded">
+                <div class="cart-item-details ml-3">
+                    <h5 class="font-weight-bold">{{ item.item.name }}</h5>
+                    <h6 class="text-muted">{{ item.item.description }}</h6>
+                    <p class="font-weight-bold">Price: <span class="text-success">{{ item.item.price }} Rs.</span></p>
+                    <div class="quantity-control d-flex align-items-center">
+                        <form action="{% url 'update_cart' item.item.slug %}" method="POST" class="d-flex">
+                            {% csrf_token %}
+                            <input type="submit" class="btn btn-sm btn-outline-danger mx-1" name="quantity" value="-">
+                            <span class="mx-2">{{ item.quantity }}</span>
+                            <input type="submit" class="btn btn-sm btn-outline-success mx-1" name="quantity" value="+">
+                        </form>
+                    </div>
+                </div>
+                <a href="{% url 'update_cart' item.item.slug %}" class="remove-item btn btn-md btn-outline-danger ml-auto">Remove</a>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="col-md-4">
+            <div class="cart-summary p-4 border rounded shadow-sm">
+                <h4 class="text-center">Cart Summary</h4>
+                <p>Total Items: <strong>{{ total_items }}</strong></p>
+                <p>Total Price: <strong>{{ subtotal }} Rs.</strong></p>
+                <form action="{% url 'checkout' %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-success btn-block">Process to Checkout</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+{% else %}
+    <div class="empty-cart text-center" style="margin-top: 30px; padding: 20px; border: 1px dashed #ccc; border-radius: 10px; background-color: #f9f9f9;">
+        <img src="{% static 'images/empty-cart.png' %}" alt="Empty Cart" style="width: 100px; height: auto; margin-bottom: 15px;">
+        <p style="font-size: 1.25rem; color: #555;">Your cart is empty.</p>
+        <a href="{% url 'base' %}" class="btn btn-primary">Continue Shopping</a>
+    </div>
+{% endif %}
+
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+            integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGaAZGJwFDsfLhK6p6n9KKO8Y4"
+            crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+            integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIbNIuW2eZZtN3Qj69jTIBc7x4Y5Hc48EXSIv4u2FxOa"
+            crossorigin="anonymous"></script>
+</div>
+</body>
+</html>
