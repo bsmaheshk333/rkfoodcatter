@@ -16,7 +16,7 @@
         <p>Thank you for your order! Your order ID is {{ order.id }}.</p>
         <p>Payment Method: {{ order.payment_method }}</p>
         <p>Total Amount: {{ order.total_amount }} Rs.</p>
-        <a href="{% url 'base' %}">Back to Menu</a>
+        <a class="nav-link" href="{% url 'order_section' %}" class="btn btn-lg btn-secondary">Go to orders</a>
     {% endif %}
     {% if order.payment_method == "online" %}
     <span>
@@ -28,10 +28,10 @@
     {% if order.payment_method == "credit card" %}
     <span>
         <p>credit card not accepted yet.</p>
-        <a href="{% url 'base' %}">Go to Menu</a>
+        <span>Go to</span>
+        <a class="nav-link" href="{% url 'order_section' %}">Orders</a>
     </span>
     {% endif %}
-
 
 </body>
 </html>

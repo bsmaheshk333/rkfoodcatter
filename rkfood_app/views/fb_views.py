@@ -4,7 +4,7 @@ from django.shortcuts import (render, redirect,
 from rkfood_app.models import (Restaurant,Menu,
                                MenuItems,
                                Customer,
-                               Order, UserLoginOtp, CommentModel, OrderItem, CartItem, Cart, DELIVERY_STATUS)
+                               Order, UserLoginOtp, CommentModel, OrderItem, CartItem, Cart)
 from django.urls import reverse
 from django.db.models import Q
 from django.template import TemplateDoesNotExist
@@ -78,11 +78,11 @@ def customer_profile(request, id):
     try:
         user = User.objects.get(id=id)
         profile = Customer.objects.get(user=user)
-        # if request.user.is_staff or request.user.is_superuser:
-        #     return HttpResponseRedirect(reverse("admin:index"))
-        context = {'profile': profile}
+        # FIXME
+        # ordered_item = OrderItem.objects.all()
+        context = {'profile': profile} # 'ordered_item': ordered_item}
         return render(request, 'customer/profile.html',context)
-    except Customer.DoesNotExist as error:
+    except Customer.DoesNotExist:
         context = {'profile_error': f"profile does not exist for user '{request.user.username}'"}
         return render(request, "error_page.html", context)
     except TemplateDoesNotExist:
@@ -96,8 +96,8 @@ def customer_login(request):
     if request.user.is_authenticated:
         errors['error'] = 'you must be logged in to access this page'
     if request.method == 'POST':
-        username = request.POST.get('username', None)
-        password = request.POST.get('password', None)
+        username: str = request.POST.get('username', None)
+        password: str = request.POST.get('password', None)
         # Validate username and password presence
         if not username:
             errors['username'] = "Invalid username."
@@ -385,6 +385,7 @@ def payment_selection(request, order_id):
             order.payment_method = payment_method.lower()
             if payment_method == 'cash':
                 order.payment_status = True
+                order.delivery_status = "received"
                 order.order_status = "completed"
             elif payment_method == ['online',  'credit card']:
                 order.payment_status = False
@@ -408,33 +409,49 @@ def order_confirmation(request, order_id):
         return render(request, "error_page.html", context={'error': ex})
 
 
-def update_delivery_status(request, order_id):
-    # customer = Customer.objects.get(user=request.user)
-    # order = Order.objects.get(customer=customer)
-    order = get_object_or_404(Order, id=order_id)
+# only admin or owner can modify the delivery status
+# def update_delivery_status(request):
+#     # orders = Order.objects.all()
+#     ordered_items = OrderItem.objects.all()
+#     ordered_items = OrderItem.objects.select_related('order').all()
+#     if request.method == 'POST':
+#         delivery_status = request.POST.get('delivery_status')
+#         if delivery_status in dict(DELIVERY_STATUS):
+#             ordered_items.order.delivery_status = delivery_status
+#             ordered_items.save()  # save to DB
+#             return redirect("update_delivery_status")
+#     return render(request, 'customer_ordered_delivery_status.html', context={'ordered_items': ordered_items})
+
+def update_delivery_status(request):
+    ordered_items = OrderItem.objects.select_related('order').all()  # Fetch related orders efficiently
+    # get the DELIVERY_STATUS from model
+    DELIVERY_STATUS = Order._meta.get_field('delivery_status').choices
     if request.method == 'POST':
-        delivery_status = request.POST.get('delivery_status').strip()
-        if delivery_status in dict(DELIVERY_STATUS):
-            order.delivery_status = delivery_status
-            order.save()  # save to DB
-            # TODO return to user order section
-            return HttpResponseRedirect("base")
-    return render(request, 'delivery_status.html', context={'order': order})
+        delivery_status = request.POST.get('delivery_status')
+        order_id = request.POST.get('order_id')  # Including the order id from input to know which order to update
+        if delivery_status in dict(DELIVERY_STATUS):  # Validate if the status is in the choices
+            order = Order.objects.get(id=order_id)
+            order.delivery_status = delivery_status  # Update the delivery status
+            order.save()  # Save to the DB
+            return redirect("update_delivery_status")
+    return render(request, 'customer_ordered_delivery_status.html',
+                  context={'ordered_items': ordered_items, 'DELIVERY_STATUS': DELIVERY_STATUS})
 
 
-def order_section(request, id=None):
-    ordered_item = OrderItem.objects.all()
-    print(f"{ordered_item = }")
-    if ordered_item.exists():
+def order_section(request):
+    customer = Customer.objects.get(user=request.user)
+    order = Order.objects.filter(customer=customer)
+    if order.exists():
+        ordered_item = OrderItem.objects.filter(order__in=order)
         context = {
             'ordered_item': ordered_item,
         }
-        # return render(request, 'customer/profile.html', context)
         return render(request, 'customer/ordered_item.html', context)
+    else:
+        return JsonResponse({'error': 'no orders found'}, status=404)
 
-
-
-
+def generate_receipt(request):
+    pass
 
 
 

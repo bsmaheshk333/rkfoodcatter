@@ -26,6 +26,9 @@ urlpatterns = [
     # path('profile/order_section/<int:id>/', fb_views.order_section, name="order_section"),
     path('profile/order_section/', fb_views.order_section, name="order_section"),
 
+    # url of admin to monitor ordered food to deliver
+    path('update_delivery_status/', fb_views.update_delivery_status, name="update_delivery_status"),
+
     # API endpoints
     path('login_api/', api_views.LoginApiView.as_view(), name="login_api"),
     path('register_api/', api_views.RegisterApiView.as_view(), name="register_api"),

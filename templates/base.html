@@ -3,8 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <title>RK FoodStop</title>
-
-    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
           crossorigin="anonymous">
@@ -110,16 +108,21 @@
                     {% if request.user.is_staff %}
                     <a class="nav-link" href="{% url 'admin:index' %}">Admin</a>
                     {% else %}
-                    <a class="nav-link" href="{% url 'profile' request.user.id %}">Profile</a>
+                    <a class="nav-link" href="{% url 'profile' request.user.id %}">{{request.user}}</a>
                     {% endif %}
             </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'order_section' %}">orders</a>
+            </li>
+            {% if request.user.is_staff %}
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'update_delivery_status' %}">Track User Orders</a>
+            </li>
+            {% endif %}
             <li class="nav-item">
                 <a class="nav-link" href="{% url 'logout' %}">logout</a>
             </li>
 
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'order_section' %}">orders</a>
-            </li>
         </ul>
 
         <!-- Cart Icon -->
@@ -178,9 +181,9 @@
                     <h5>{{ item.name }}</h5>
                     <p>{{ item.description }}</p>
                     <p><strong>{{ item.price }} Rs.</strong></p>
-                    <form method="POST">
+                    <form method="POST" action="{% url 'add_to_cart' item.id %}">
                         {% csrf_token %}
-                        <button class="btn btn-primary btn-block" type="submit" name="add">Add to Cart</button>
+                        <button class="btn btn-primary btn-block" type="submit" name="add">Order</button>
                     </form>
                 </div>
             </div>
@@ -203,9 +206,9 @@
                     <h5>{{ item.name }}</h5>
                     <p>{{ item.description }}</p>
                     <p><strong>{{ item.price }} Rs.</strong></p>
-                    <form method="POST">
+                    <form method="POST" action="{% url 'add_to_cart' item.id %}">
                         {% csrf_token %}
-                        <button class="btn btn-primary btn-block" type="submit" name="add">Add to Cart</button>
+                        <button class="btn btn-primary btn-block" type="submit" name="add">Order</button>
                     </form>
                 </div>
             </div>

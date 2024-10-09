@@ -91,6 +91,7 @@ class MenuItems(models.Model):
 
 
 class Customer(models.Model):
+    # one
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True,
                                 related_name="customer_profile")
     phone = models.CharField(max_length=12, unique=True, blank=False, null=False)
@@ -131,10 +132,9 @@ class Order(models.Model):
     order_date = models.DateTimeField(auto_now_add=True)
     # order_qty = models.IntegerField()
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    payment_status = models.BooleanField(default=False)
-    order_status = models.CharField(max_length=20, choices=ORDER_STATUS) #  default=ORDER_STATUS[0][1])
+    payment_status = models.BooleanField(default=False)  #  todo
+    order_status = models.CharField(max_length=20, choices=ORDER_STATUS)
     payment_method = models.CharField(max_length=20, choices=PAYMENT_METHODS)
-                                      # default=PAYMENT_METHODS[0][1])
     last_update_date = models.DateTimeField(auto_now=True)
     delivery_status = models.CharField(max_length=15, choices=DELIVERY_STATUS)
 

@@ -1,0 +1,154 @@
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Delivery Status</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+          crossorigin="anonymous">
+    <style>
+       body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            margin-top: 30px;
+        }
+        .card {
+            margin-bottom: 20px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        h2 {
+            margin-bottom: 20px;
+        }
+        .btn-primary {
+            margin-top: 10px;
+        }
+        .table th, .table td {
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="{% url 'base' %}">Restaurant App</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'base' %}">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Orders</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Profile</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav">
+                {% if request.user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">Login</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        {% if request.user.is_staff %}
+            {% if ordered_items %}
+                <div class="row">
+                    {% for order_item in ordered_items %}
+                        <div class="col-lg-4 col-md-6">
+                            <div class="card shadow">
+                                <div class="card-header bg-primary text-white">
+                                    <h5>Order ID: {{ order_item.order.id }}</h5>
+                                </div>
+                                <div class="card-body">
+                                    <!-- Ordered user info in a table for better readability -->
+                                    <table class="table table-bordered">
+                                        <tbody>
+                                            <tr>
+                                                <th scope="row">Customer:</th>
+                                                <td>{{ order_item.order.customer.user }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row">Item:</th>
+                                                <td>{{ order_item.menu_item.name }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row">Quantity:</th>
+                                                <td>{{ order_item.quantity }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row">Subtotal:</th>
+                                                <td>{{ order_item.subtotal }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row">Paid:</th>
+                                                <td>{{ order_item.order.payment_status|yesno:"Yes,No" }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row">Delivery Status:</th>
+                                                <td>{{ order_item.order.delivery_status }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                    <form method="POST">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="order_id" value="{{ order_item.order.id }}">
+                                        <div class="form-group">
+                                            <label for="delivery_status" class="font-weight-bold">New Delivery Status:</label>
+                                            <select name="delivery_status" id="delivery_status" class="form-control">
+                                                {% for status in DELIVERY_STATUS %}
+                                                    <option value="{{ status.0 }}" {% if order_item.order.delivery_status == status.0 %}selected{% endif %}>
+                                                        {{ status.1 }}
+                                                    </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Update Status</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-info" role="alert">
+                    No orders found.
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="alert alert-danger" role="alert">
+                You are not authorized to access this page.
+            </div>
+            <a href="{% url 'base' %}" class="btn btn-primary">Home</a>
+        {% endif %}
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+            integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGaMrTwKgiRLS2s2PmqH0n6ja/"
+            crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+            integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy9Vb8U8FNXcpENHR1ljH0WWw5L7U5oC2BojG8C"
+            crossorigin="anonymous"></script>
+</body>
+</html>

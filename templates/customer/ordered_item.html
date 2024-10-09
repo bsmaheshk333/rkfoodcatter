@@ -2,59 +2,102 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Order Item</title>
     <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f7fa;
+            margin: 0;
+            padding: 20px;
+            color: #34495e;
+        }
 
-.order-list {
-    list-style-type: none;
-    padding: 0;
-}
+        .container {
+            max-width: 900px;
+            margin: auto;
+            padding: 20px;
+        }
 
-.order-item {
-    padding: 15px;
-    background-color: #f9f9f9;
-    border: 1px solid #ecf0f1;
-    border-radius: 8px;
-    margin-bottom: 10px;
-}
+        .card {
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            padding: 20px;
+        }
 
-.order-item span {
-    display: block;
-    margin-top: 5px;
-}
+        .card-heading {
+            font-size: 1.8rem;
+            color: #16a085;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 10px;
+        }
 
-strong {
-    color: #2980b9;
-}
+        .order-list {
+            list-style-type: none;
+            padding: 0;
+        }
 
-/* Hover effect for order items */
-.order-item:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    transform: translateY(-3px);
-    transition: all 0.3s ease;
-}
+        .order-item {
+            padding: 15px;
+            background-color: #f9f9f9;
+            border: 1px solid #ecf0f1;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .order-item:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .order-item span {
+            display: block;
+            margin-top: 5px;
+            color: #34495e;
+        }
+
+        strong {
+            color: #2980b9;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .card {
+                padding: 15px;
+            }
+
+            .card-heading {
+                font-size: 1.5rem;
+            }
+        }
     </style>
 </head>
 <body>
-     <div class="card">
-        <h2 class="card-heading">Ordered Items</h2>
-        {% for item in ordered_item %}
-        <ul class="order-list card-content">
-            <li class="order-item">
-                <span><strong>User</strong> ₹{{ request.user }}</span>
-                <span><strong>Total Amout paid:</strong> ₹{{ item.subtotal }}</span>
-                <span><strong>Ordered On:</strong> {{ item.order.order_date }}</span>
-                <span><strong>Quantity:</strong> {{ item.quantity }}</span>
-                <span><strong>Unit price:</strong> {{ item.unit_price }}</span>
-                <span><strong>Item:</strong> {{ item.menu_item.name }}</span>
-                <span><strong>Price:</strong> ₹{{ item.order.payment_status }}</span>
-                <span><strong>Price:</strong> ₹{{ price }}</span>
-            </li>
-        </ul>
-         {% endfor %}
+    <div class="container">
+        <div class="card">
+            <h2 class="card-heading">Orders</h2>
+            <ul class="order-list">
+                {% for item in ordered_item %}
+                <li class="order-item">
+                    <span><strong>Total Amount Paid:</strong> ₹{{ item.subtotal }}</span>
+                    <span><strong>Ordered On:</strong> {{ item.order.order_date }}</span>
+                    <span><strong>Quantity:</strong> {{ item.quantity }}</span>
+                    <span><strong>Unit Price:</strong> ₹{{ item.unit_price }}</span>
+                    <span><strong>Item:</strong> {{ item.menu_item.name }}</span>
+                    <span><strong>Payment Status:</strong> {{ item.order.payment_status }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
     </div>
 </body>
 </html>
