@@ -25,10 +25,8 @@ from django.db import transaction, IntegrityError
 
 @login_required(login_url="login/")
 def home(request):
-    context = {}
     try:
         menu_items = MenuItems.objects.all()
-        # initially for a new user cart won't exist, so handling the situation
         cart, created = Cart.objects.get_or_create(customer=request.user)
         if not cart.cart_items.all(): # if cart is empty
             no_of_cart_item = 0  # set count to zero
@@ -44,6 +42,7 @@ def home(request):
     except TemplateDoesNotExist as ex:
         return render(request, "error_page.html", {'error': ex})
 
+@login_required(login_url="login/")
 def item_detail_view(request, slug):
     try:
         item = get_object_or_404(MenuItems, slug=slug)
@@ -72,7 +71,7 @@ def item_detail_view(request, slug):
         return render(request, "error_page.html", context)
 
 
-
+@login_required(login_url="login/")
 def customer_profile(request, id):
     # TODO implement redis
     try:
@@ -259,7 +258,7 @@ def customer_register(request):
 #     else:
 #         return render(request, "customer/register.html")
 
-
+@login_required(login_url="login/")
 def customer_logout(request):
     try:
         logout(request)
@@ -269,6 +268,7 @@ def customer_logout(request):
     except:
         return render(request, "error_page.html")
 
+@login_required(login_url="login/")
 def search_menu_item(request):
     # TODO redis
     context = {}
@@ -289,6 +289,8 @@ def search_menu_item(request):
     else:
         return render(request, "error_page.html")
 
+
+@login_required(login_url="login/")
 def add_item_to_cart(request, id):
     try:
         user = request.user
@@ -314,6 +316,7 @@ def add_item_to_cart(request, id):
         return render(request, "error_page.html", context={'error': ex})
 
 
+@login_required(login_url="login/")
 def cart_view(request):
     cart = Cart.objects.get(customer=request.user)
     cart_item = CartItem.objects.filter(cart=cart)
@@ -332,6 +335,7 @@ def cart_view(request):
     return render(request, "cart_view.html", context)
 
 
+@login_required(login_url="login/")
 def update_cart(request, slug):
     cart = Cart.objects.get(customer=request.user)
     item = get_object_or_404(MenuItems, slug=slug)
@@ -352,6 +356,7 @@ def update_cart(request, slug):
     return redirect("cart_view")
 
 
+@login_required(login_url="login/")
 def checkout(request):
     try:
         cart = Cart.objects.get(customer=request.user)
@@ -377,6 +382,7 @@ def checkout(request):
         # return render(request, "error_page.html", {'error': ex})
 
 
+@login_required(login_url="login/")
 def payment_selection(request, order_id):
     order = get_object_or_404(Order, id=order_id)
     if request.method == 'POST':
@@ -400,6 +406,7 @@ def payment_selection(request, order_id):
     return render(request, 'payment_selection.html', {'order': order})
 
 
+@login_required(login_url="login/")
 def order_confirmation(request, order_id):
     try:
         order = get_object_or_404(Order, id=order_id)
@@ -422,6 +429,7 @@ def order_confirmation(request, order_id):
 #             return redirect("update_delivery_status")
 #     return render(request, 'customer_ordered_delivery_status.html', context={'ordered_items': ordered_items})
 
+@login_required(login_url="login/")
 def update_delivery_status(request):
     ordered_items = OrderItem.objects.select_related('order').all()  # Fetch related orders efficiently
     # get the DELIVERY_STATUS from model
@@ -438,17 +446,22 @@ def update_delivery_status(request):
                   context={'ordered_items': ordered_items, 'DELIVERY_STATUS': DELIVERY_STATUS})
 
 
+@login_required(login_url="login/")
 def order_section(request):
     customer = Customer.objects.get(user=request.user)
     order = Order.objects.filter(customer=customer)
+    DELIVERY_STATUS = Order._meta.get_field('delivery_status').choices
+    filter_delivery_status = order = Order.objects.filter(Q(delivery_status=DELIVERY_STATUS))
+
     if order.exists():
         ordered_item = OrderItem.objects.filter(order__in=order)
         context = {
             'ordered_item': ordered_item,
         }
-        return render(request, 'customer/ordered_item.html', context)
+        return render(request, 'ordered_item.html', context)
     else:
-        return JsonResponse({'error': 'no orders found'}, status=404)
+        context = {"no_orders": 'no order found'}
+        return render(request, 'ordered_item.html', context)
 
 def generate_receipt(request):
     pass

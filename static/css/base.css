@@ -78,3 +78,27 @@
             font-size: 1rem;
             color: #007bff;
         }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+
+        .breadcrumb a {
+            color: #2980b9;
+            text-decoration: none;
+            margin-right: 8px;
+            transition: color 0.3s ease;
+        }
+
+        .breadcrumb a:hover {
+            color: #16a085;
+        }
+
+        .breadcrumb span {
+            margin-right: 8px;
+            color: #95a5a6;
+        }
+

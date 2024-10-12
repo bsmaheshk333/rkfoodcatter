@@ -2,152 +2,203 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RK FoodStop - {{ item.name }}</title>
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
-          crossorigin="anonymous">
-    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'css/item_detail_view.css' %}">
     <style>
+        body {
+            background-color: #f4f4f9;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .container {
+            margin-top: 20px;
+        }
+
+        /* Compact card layout for menu item */
         .menu-item {
-            margin: 30px auto;
-            padding: 20px;
-            background-color: #f9f9f9;
-            border: 1px solid #ddd;
+            background-color: #fff;
             border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            margin-bottom: 30px;
         }
 
         .menu-item img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 8px;
+            width: 100%;
+            border-radius: 6px;
+            object-fit: cover;
+            max-height: 300px;
         }
 
         .menu-item h3 {
-            font-size: 1.75rem;
-            margin-bottom: 20px;
+            font-size: 1.8rem;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 10px;
         }
 
-        .menu-item .btn {
-            margin-top: 20px;
-            padding: 10px 20px;
+        .menu-item p {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 10px;
         }
 
-        .rating {
+        .menu-item strong {
             font-size: 1.2rem;
-            color: #f39c12;
+            color: #333;
         }
 
+        .rating i {
+            color: #f1c40f;
+            margin-right: 2px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            border-radius: 6px;
+        }
+
+        /* More compact styling for the comment section */
         .comment-section {
-            margin-top: 40px;
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 30px;
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .comment-section h5 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #333;
         }
 
         .comment-form textarea {
-            width: 100%;
-            border-radius: 5px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
             padding: 10px;
-        }
-
-        .comment-list {
-            list-style: none;
-            padding: 0;
+            font-size: 0.95rem;
         }
 
         .comment-list li {
-            background-color: #fff;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            background-color: #f9f9f9;
+            border-radius: 6px;
+            padding: 10px;
             margin-bottom: 10px;
         }
 
         .comment-list .username {
-            font-weight: bold;
+            font-weight: 700;
+            color: #333;
         }
 
-        .comment-list .comment-date {
+        .breadcrumb {
             font-size: 0.85rem;
+            background-color: transparent;
+            margin-bottom: 15px;
+        }
+
+        .breadcrumb a {
+            color: #2980b9;
+        }
+
+        .breadcrumb span {
             color: #999;
+        }
+
+        /* Hover effects */
+        .btn-success:hover,
+        .btn-primary:hover {
+            background-color: #16a085;
+            border-color: #16a085;
+        }
+
+        .menu-item img:hover {
+            transform: scale(1.03);
+            transition: 0.3s ease;
         }
     </style>
 </head>
 <body>
-<div class="container">
-    <!-- Item Details Section -->
-    <div class="row menu-item">
-        <div class="col-md-6">
-            <img src="{{ item.image.url }}" alt="{{ item.name }}">
-        </div>
-        <div class="col-md-6">
-            <h3>{{ item.name }}</h3>
-            <p>{{ item.description }}</p>
-            <p><strong>Price: ₹{{ item.price }}</strong></p>
 
-            <p class="rating">
-                Rating:
-                {% for i in "12345" %}
-                    {% if forloop.counter <= item.rating %}
-                        <i class="fas fa-star"></i>
-                    {% else %}
-                        <i class="far fa-star"></i>
-                    {% endif %}
-                {% endfor %}
-            </p>
+    <div class="container">
+        <!-- Breadcrumb navigation -->
+        <nav class="breadcrumb">
+            <a href="{% url 'base' %}">Home</a> <span>/</span>
+            <a href="{% url 'detail_view' item.slug %}">{{ item.name }}</a>
+        </nav>
 
-            <!-- Add to Cart Form -->
-            <form method="POST" action="{% url 'add_to_cart' item.id %}">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-success">Add to Cart</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Comment Section -->
-    <div class="comment-section mt-5">
-        <h5>Leave a Comment</h5>
-
-        <!-- Check if user has already commented -->
-        {% if existing_comment %}
-        <p style="background: #ffdede; padding: 15px; border-radius: 5px;">
-            <strong>Note:</strong> You have already posted a comment.
-        </p>
-        {% else %}
-        <form method="POST" class="comment-form">
-            {% csrf_token %}
-            <div class="form-group">
-                <textarea name="comment" rows="4" placeholder="Write your comment here..." required></textarea>
+        <!-- Item Details Section -->
+        <div class="row menu-item">
+            <div class="col-md-6">
+                <img src="{{ item.image.url }}" alt="{{ item.name }}">
             </div>
-            <button type="submit" class="btn btn-primary">Submit Comment</button>
-        </form>
-        {% endif %}
+            <div class="col-md-6">
+                <h3>{{ item.name }}</h3>
+                <p>{{ item.description }}</p>
+                <p><strong>Price: ₹{{ item.price }}</strong></p>
 
-        <!-- Display existing comments -->
-        <h5 class="mt-5">Reviews</h5>
-        <ul class="comment-list">
-            {% for cmt in comments %}
-            <li>
-                <div class="username">{{ cmt.user.username }}</div>
-                <div class="comment-date">{{ cmt.commented_on|date:"d M, Y H:i" }}</div>
-                <div class="user-comment">{{ cmt.comment }}</div>
-            </li>
-            {% empty %}
-            <p>No comments yet. Be the first to comment!</p>
-            {% endfor %}
-        </ul>
+                <p class="rating">
+                    {% for i in "12345" %}
+                        {% if forloop.counter <= item.rating %}
+                            <i class="fas fa-star"></i>
+                        {% else %}
+                            <i class="far fa-star"></i>
+                        {% endif %}
+                    {% endfor %}
+                </p>
+
+                <!-- Add to Cart Form -->
+                <form method="POST" action="{% url 'add_to_cart' item.id %}">
+                    {% csrf_token %}
+                    <div class="btn-group" role="group">
+                        <button type="submit" class="btn btn-success">Add to Cart</button>
+                        <a href="{% url 'cart_view' %}" class="btn btn-primary ml-2">Go to cart</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Comment Section -->
+        <div class="comment-section mt-4">
+            <h5>Leave a Comment</h5>
+
+            {% if existing_comment %}
+            <p style="background-color: #ffe9e9; padding: 10px; border-radius: 6px;">
+                <strong>Note:</strong> You have already posted a comment.
+            </p>
+            {% else %}
+            <form method="POST" class="comment-form">
+                {% csrf_token %}
+                <textarea name="comment" rows="3" placeholder="Write your comment..." required></textarea>
+                <button type="submit" class="btn btn-primary mt-3">Submit Comment</button>
+            </form>
+            {% endif %}
+
+            <!-- Display existing comments -->
+            <h5 class="mt-4">Reviews</h5>
+            <ul class="comment-list">
+                {% for cmt in comments %}
+                <li>
+                    <div class="username">{{ cmt.user.username }}</div>
+                    <div class="comment-date">{{ cmt.commented_on|date:"d M, Y H:i" }}</div>
+                    <div class="user-comment">{{ cmt.comment }}</div>
+                </li>
+                {% empty %}
+                <p>No comments yet. Be the first to comment!</p>
+                {% endfor %}
+            </ul>
+        </div>
     </div>
-</div>
 
-<!-- Bootstrap JS and dependencies -->
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-        crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
-        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGaAZGJwFDsfLhK6p6n9KKO8Y4"
-        crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
-        integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIbNIuW2eZZtN3Qj69jTIBc7x4Y5Hc48EXSIv4u2FxOa"
-        crossorigin="anonymous"></script>
+    <!-- JS, Popper.js, and jQuery -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
 </body>
 </html>

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>RK FoodStop</title>
+    <title>RKFoodCatters</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
           crossorigin="anonymous">
@@ -11,97 +11,111 @@
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
 
     <style>
-        /* Custom Styles for the Navbar */
-        .navbar {
-            background-color: #007bff;
-        }
-        .navbar-brand {
-            color: white !important;
-            font-weight: bold;
-        }
-        .navbar-nav .nav-link {
-            color: white !important;
-        }
-        .navbar-nav .nav-link:hover {
-            color: #f8f9fa !important;
-        }
+       /* Logo Container */
+.logo-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px auto;
+    position: relative;
+    animation: float 4s ease-in-out infinite;
+}
 
-        /* Add Cart Icon to the Navbar */
-        .cart-icon {
-            position: relative;
-            font-size: 1.5rem;
-            color: white;
-        }
-        .cart-count {
-            position: absolute;
-            top: -8px;
-            right: -10px;
-            background-color: red;
-            color: white;
-            border-radius: 50%;
-            padding: 3px 6px;
-            font-size: 0.8rem;
-        }
+/* Floating Animation */
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
 
-        /* Hover Effects for Menu Items */
-        .menu-section {
-            margin-top: 2rem;
-        }
+/* Logo Icon */
+.logo-icon {
+    width: 50px;
+    height: 50px;
+    background: url('https://example.com/logo-icon.png') no-repeat center center;
+    background-size: contain;
+    margin-right: 10px;
+    filter: drop-shadow(2px 2px 10px rgba(0, 0, 0, 0.2));
+    animation: rotate 6s linear infinite;
+}
 
-        .menu-section h2 {
-            text-align: center;
-            font-size: 2rem;
-            color: #007bff;
-            margin-bottom: 1.5rem;
-        }
+/* Rotating Animation for the Logo Icon */
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
 
-        .menu-item {
-            background-color: #fff;
-            border-radius: 10px;
-            padding: 1rem;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
-        }
+/* Logo Text */
+.logo-text {
+    font-size: 24px;
+    font-weight: bold;
+    color: #007bff;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(90deg, #007bff, #ff6347, #007bff);
+    background-size: 200%;
+    background-clip: text;
+    color: transparent;
+    animation: shine 3s ease-in-out infinite;
+}
 
-        .menu-item img {
-            max-width: 100%;
-            height: 200px;
-            object-fit: cover;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-        }
+/* Shining Animation for Text */
+@keyframes shine {
+    from {
+        background-position: 0%;
+    }
+    to {
+        background-position: 200%;
+    }
+}
 
-        .menu-item:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-        }
+.logo-text span {
+    color: #ff6347;
+}
 
-        .menu-item h5 {
-            font-weight: bold;
-            font-size: 1.25rem;
-            margin-bottom: 0.5rem;
-        }
+/* Sparkling Effect */
+.logo-text::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.2);
+    filter: blur(20px);
+    opacity: 0;
+    transform: translateX(-100%);
+    animation: sparkle 3s ease-in-out infinite;
+}
 
-        .menu-item p {
-            font-size: 0.9rem;
-            color: #555;
-        }
+@keyframes sparkle {
+    0%, 100% {
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+        transform: translateX(100%);
+    }
+}
 
-        .menu-item strong {
-            font-size: 1rem;
-            color: #007bff;
-        }
+
     </style>
 </head>
 <body>
 
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-light">
-    <a class="navbar-brand" href="{% url 'base' %}">RKFoodStop</a>
+    <a class="navbar-brand" href="{% url 'base' %}">RKFoodCatter</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
-
     <div class="collapse navbar-collapse" id="navbarNavDropdown">
         <ul class="navbar-nav ml-auto">
             <li class="nav-item">
@@ -112,17 +126,16 @@
                     {% endif %}
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'order_section' %}">orders</a>
+                <a class="nav-link" href="{% url 'order_section' %}">Orders</a>
             </li>
             {% if request.user.is_staff %}
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'update_delivery_status' %}">Track User Orders</a>
+                <a class="nav-link" href="{% url 'update_delivery_status' %}">Track orders</a>
             </li>
             {% endif %}
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'logout' %}">logout</a>
+                <a class="nav-link" href="{% url 'logout' %}">Logout</a>
             </li>
-
         </ul>
 
         <!-- Cart Icon -->
@@ -140,10 +153,22 @@
     </div>
 </nav>
 
+<div class="logo-container">
+    <div class="logo-icon"></div>
+    <div class="logo-text">RKFood<span>Catters</span></div>
+</div>
+
+<div class="container mt-5 scroll-buttons">
+    <a href="#breakfast" class="btn btn-primary">Breakfast</a>
+    <a href="#lunch" class="btn btn-primary">Lunch</a>
+    <a href="#dinner" class="btn btn-primary">Dinner</a>
+    <a href="#beverages" class="btn btn-primary">Beverages</a>
+</div>
+
 <!-- Content -->
 <div class="container">
     <!-- Breakfast Section -->
-    <div class="menu-section">
+    <div id="menu-section" class="menu-section">
         <h2>Breakfast Menu</h2>
         <div class="row">
             {% for item in menu_items %}
@@ -166,9 +191,9 @@
             {% endfor %}
         </div>
     </div>
-
+    <hr style="color: red;">
     <!-- Lunch Section -->
-    <div class="menu-section">
+    <div id="lunch" class="menu-section">
         <h2>Lunch Menu</h2>
         <div class="row">
             {% for item in menu_items %}
@@ -191,9 +216,8 @@
             {% endfor %}
         </div>
     </div>
-
-    <!-- Dinner Section -->
-    <div class="menu-section">
+    <hr style="color: red;">
+    <div id="dinner" class="menu-section">
         <h2>Dinner Menu</h2>
         <div class="row">
             {% for item in menu_items %}
@@ -216,9 +240,78 @@
             {% endfor %}
         </div>
     </div>
+
+    <hr style="color: red;">
+    <!-- beverages -->
+    <div id="beverages" class="menu-section">
+        <h2>beverages Menu</h2>
+        <div class="row">
+            {% for item in menu_items %}
+            {% if item.menu.menu_title|lower == "beverages" %}
+            <div class="col-sm-12 col-md-6 col-lg-4">
+                <div class="menu-item">
+                    <a href="{% url 'detail_view' item.slug %}">
+                        <img src="{{ item.image.url }}" alt="{{ item.name }}">
+                    </a>
+                    <h5>{{ item.name }}</h5>
+                    <p>{{ item.description }}</p>
+                    <p><strong>{{ item.price }} Rs.</strong></p>
+                    <form method="POST" action="{% url 'add_to_cart' item.id %}">
+                        {% csrf_token %}
+                        <button class="btn btn-primary btn-block" type="submit" name="add">Order</button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
 </div>
 
-<!-- Bootstrap JS, Popper.js, and jQuery -->
+<!--feedback form-->
+<div class="container mt-5">
+    <h2 style="color: green;">We Value Your Feedback!</h2>
+    <p style="color: grey">Please let us know how we can improve your experience.</p>
+    <form action="" method="POST">
+        {% csrf_token %}
+        <!-- Name -->
+        <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" class="form-control" id="name" name="name" placeholder="your name" required>
+        </div>
+        <!-- email -->
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" class="form-control" placeholder="email address" id="email" name="email" required>
+        </div>
+        <!-- Rating -->
+        <div class="form-group">
+            <label for="rating">Rate Us (1-5)</label>
+            <select class="form-control" id="rating" name="rating" required>
+                <option value="" disabled selected>Select a rating</option>
+                <option value="1">1 - Poor</option>
+                <option value="2">2 - Fair</option>
+                <option value="3">3 - Good</option>
+                <option value="4">4 - Very Good</option>
+                <option value="5">5 - Excellent</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="message">Your Feedback</label>
+            <textarea class="form-control" placeholder="please write your comment here..."
+                      id="message" name="message" rows="4" required>
+            </textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit Feedback</button>
+    </form>
+</div>
+
+<!-- Footer -->
+<footer class="footer bg-dark mt-5 p-3">
+    <div class="container text-center">
+        <p style="color: white">&copy; 2024 RKFoodCatter. All Rights Reserved.</p>
+    </div>
+</footer>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" crossorigin="anonymous"></script>

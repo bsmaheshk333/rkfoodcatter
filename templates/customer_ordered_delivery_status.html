@@ -47,7 +47,7 @@
                     <a class="nav-link" href="{% url 'base' %}">Home</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Orders</a>
+                    <a class="nav-link" href="{% url 'order_section' %}">orders</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#">Profile</a>
@@ -103,7 +103,7 @@
                                             </tr>
                                             <tr>
                                                 <th scope="row">Delivery Status:</th>
-                                                <td>{{ order_item.order.delivery_status }}</td>
+                                                <td style="color: black; background: pink; border-radius: 3px;">{{ order_item.order.delivery_status }}</td>
                                             </tr>
                                         </tbody>
                                     </table>

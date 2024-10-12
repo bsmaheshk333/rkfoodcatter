@@ -1,37 +1,90 @@
-
 {% load static %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shopping Cart - RK FoodStop</title>
+    <title>Order Confirmation - RK FoodStop</title>
+    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
           crossorigin="anonymous">
 
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .confirmation-container {
+            max-width: 600px;
+            margin: 50px auto;
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h2 {
+            font-size: 2rem;
+            color: #28a745;
+            font-weight: 700;
+            margin-bottom: 30px;
+        }
+        p {
+            font-size: 1.2rem;
+            color: #333;
+        }
+        .btn {
+            font-size: 1rem;
+            padding: 10px 20px;
+            border-radius: 50px;
+            margin-top: 20px;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            border-color: #6c757d;
+            transition: all 0.3s;
+        }
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        .alert {
+            font-size: 1.2rem;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
-    <h2>Order Confirmation</h2>
-    {% if order.payment_method == "cash" %}
-        <p>Thank you for your order! Your order ID is {{ order.id }}.</p>
-        <p>Payment Method: {{ order.payment_method }}</p>
-        <p>Total Amount: {{ order.total_amount }} Rs.</p>
-        <a class="nav-link" href="{% url 'order_section' %}" class="btn btn-lg btn-secondary">Go to orders</a>
-    {% endif %}
-    {% if order.payment_method == "online" %}
-    <span>
-        <p>online payment gateway is not available</p>
-        <a href="{% url 'base' %}">Go to Menu</a>
-    </span>
-    {% endif %}
 
-    {% if order.payment_method == "credit card" %}
-    <span>
-        <p>credit card not accepted yet.</p>
-        <span>Go to</span>
-        <a class="nav-link" href="{% url 'order_section' %}">Orders</a>
-    </span>
-    {% endif %}
+    <div class="confirmation-container">
+        <h2>Order Confirmation</h2>
 
+        {% if order.payment_method == "cash" %}
+            <p>Thank you for your order! Your order ID is <strong>{{ order.id }}</strong>.</p>
+            <p>Payment Method: <strong>Cash</strong></p>
+            <p>Total Amount: <strong>{{ order.total_amount }} Rs.</strong></p>
+            <a href="{% url 'order_section' %}" class="btn btn-lg btn-secondary">Go to Orders</a>
+        {% endif %}
+
+        {% if order.payment_method == "online" %}
+            <div class="alert alert-warning">
+                <p><strong>Online payment gateway is not available at the moment.</strong></p>
+            </div>
+            <a href="{% url 'payment_selection' order.id %}" class="btn btn-primary">Go back to payment</a>
+        {% endif %}
+
+        {% if order.payment_method == "credit card" %}
+            <div class="alert alert-danger">
+                <p><strong>Credit card payments are not accepted yet.</strong></p>
+            </div>
+            <a href="{% url 'order_section' %}" class="btn btn-lg btn-secondary">Go to Orders</a>
+        {% endif %}
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGaF2MxhhL18Uclh0QldPbHGxg"
+            crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+            crossorigin="anonymous"></script>
 </body>
 </html>

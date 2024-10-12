@@ -1,0 +1,58 @@
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>My Orders</title>
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/ordered_item.css' %}">
+</head>
+<body>
+    <div class="container">
+
+        <!-- Breadcrumb navigation -->
+        <nav class="breadcrumb">
+            <a href="{% url 'base' %}">Home</a>
+            <span>>></span>
+            <a href=""></a>
+            <span>My Orders</span>
+        </nav>
+
+        <div class="card">
+            <h2 class="card-heading">My Orders</h2>
+            {% if ordered_item %}
+            <ul class="order-list">
+                {% for item in ordered_item %}
+                <li class="order-item">
+                    <!-- Image of food item -->
+                    <span><img src="{{ item.menu_item.image.url }}" alt="{{ item.menu_item.name }}"></span>
+
+                    <!-- Order Details -->
+                    <div class="order-details">
+                        <span><strong>Order ID:</strong> {{ item.order.id }}</span>
+                        <span><strong>Item:</strong> {{ item.menu_item.name }}</span>
+                        <span><strong>Total Amount:</strong> ₹{{ item.subtotal }}</span>
+                        <span><strong>Ordered On:</strong> {{ item.order.order_date }}</span>
+                        <span><strong>Quantity:</strong> {{ item.quantity }}</span>
+                        <span><strong>Unit Price:</strong> ₹{{ item.unit_price }}</span>
+                        <!-- Payment & Delivery Status -->
+                        <div class="status-row">
+                            <span><strong>Payment Status:</strong> {{ item.order.payment_status|yesno:"Yes,No" }}</span>
+                            <span><strong>Delivery Status:</strong> <span class="status">{{ item.order.delivery_status }}</span></span>
+                        </div>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <h3>Oh... you have not ordered anything</h3>
+            Please Go to your Menu section to <a href="{% url 'base' %}" class="btn btn-primary">Order</a>
+            <p>We're always at your service...</p>
+            <p>Happy eating...</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

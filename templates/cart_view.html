@@ -8,65 +8,17 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
           crossorigin="anonymous">
-    <link rel="stylesheet" href="{% static 'css/cart.css' %}">
-    <style>
-        .cart-container {
-            margin-top: 40px;
-        }
-        .cart-item {
-            border-bottom: 1px solid #ddd;
-            padding: 20px 0;
-            display: flex;
-            align-items: center;
-        }
-        .cart-item img {
-            max-width: 150px;
-            border-radius: 8px;
-        }
-        .cart-item-details {
-            margin-left: 20px;
-        }
-        .cart-item h5 {
-            font-size: 1.5rem;
-            margin-bottom: 10px;
-        }
-        .cart-item p {
-            font-size: 1rem;
-            color: #555;
-        }
-        .cart-item .quantity-input {
-            width: 50px;
-            text-align: center;
-        }
-        .cart-item .remove-item {
+    <link rel="stylesheet" href="{% static 'css/cart_view.css' %}">
 
-            margin-left: auto;
-            cursor: pointer;
-        }
-        .cart-summary {
-            margin-top: 40px;
-            background-color: #f9f9f9;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-        }
-        .cart-summary h4 {
-            font-size: 1.75rem;
-        }
-        .cart-summary p {
-            font-size: 1.2rem;
-        }
-        .checkout-btn {
-            margin-top: 20px;
-            background-color: #28a745;
-            color: #fff;
-            padding: 10px 20px;
-            border-radius: 8px;
-            text-align: center;
-        }
-    </style>
 </head>
 <body>
+     <nav class="container mt-5 breadcrumb">
+        <a href="{% url 'base' %}">Home</a>
+        <span>/</span>
+        <a href="">{{item}}</a>
+    </nav>
+<div class="container">
+
 <div class="container cart-container">
     <!-- Display messages -->
     {% if messages %}

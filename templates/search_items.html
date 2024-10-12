@@ -2,15 +2,35 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>
-        Search restaurant items
-    </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Restaurant Items</title>
+    <link href="{% static 'css/search.css' %}" rel="stylesheet">
 </head>
 <body>
-{{menu_items}}
-<main>
-    {% block content %}
-    {% endblock %}
-</main>
+<div class="container">
+    <h1>Search Results for {{ query_item}}</h1>
+    {% if menu_items %}
+    <div class="search-results">
+        {% for item in menu_items %}
+        <div class="card">
+            <img src="{{ item.image.url }}" alt="{{ item.name }}">
+            <div class="card-body">
+                <h2 class="card-title">{{ item.name }}</h2>
+                <p class="card-description">{{ item.description }}</p>
+                <p class="card-price">₹{{ item.price }}</p>
+                <form method="POST" action="{% url 'add_to_cart' item.id %}">
+                        {% csrf_token %}
+                        <button class="btn btn-primary" type="submit" name="add">Order</button>
+                    </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+        <p>No items found matching your search.</p>
+    {% endif %}
+
+</div>
+
 </body>
 </html>

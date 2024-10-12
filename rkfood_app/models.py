@@ -47,7 +47,7 @@ class Restaurant(models.Model):
     def formatted_close_time(self):
         return self.close_at.strftime("%I:%M:%p")
 
-    # handle a situation when user tries to set close time before even its opens time.
+    # handle a situation when user(admin) tries to set close time before even its opens time.
     def clean(self):
         if self.close_at <= self.opens_at:
             raise ValidationError("close time must be later than opening time.")
@@ -62,7 +62,8 @@ class Restaurant(models.Model):
 menu_choice = [
     ('Breakfast', 'Breakfast'),
     ('Lunch', 'Lunch'),
-    ('Dinner', 'Dinner')
+    ('Dinner', 'Dinner'),
+    ('beverages', 'beverages')
 ]
 
 class Menu(models.Model):
@@ -139,7 +140,7 @@ class Order(models.Model):
     delivery_status = models.CharField(max_length=15, choices=DELIVERY_STATUS)
 
     def __str__(self):
-        return (f"Payment status: {self.payment_status} || Payment Method:{self.payment_method} || "
+        return (f"User:{self.customer.user} || Payment status: {self.payment_status} || Payment Method:{self.payment_method} || "
                 f"Order Status: {self.order_status}")
 
 class OrderItem(models.Model):
@@ -218,3 +219,15 @@ class CartItem(models.Model):
 
     def __str__(self):
         return f"{self.cart.customer.username}"
+
+RATING_CHOICES = [
+    ('poor', 'poor'),
+    ('fair', 'fair'),
+    ('good', 'good'),
+    ('very good', 'very good'),
+    ('excellent', 'excellent')
+]
+class Feedback(models.Model):
+    name = models.CharField(max_length=20)
+    email = models.EmailField(max_length=20, unique=True)
+    rating = models.CharField(max_length=10, choices=RATING_CHOICES)
