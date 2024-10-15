@@ -147,8 +147,8 @@ def customer_register(request):
         phone = request.POST.get('phone', None).strip()
         print(f"phone -> {phone = }")
         errors = {}
-    
-        if not username.lower():
+
+        if not username.islower():
             errors['error'] = 'please enter username in lowercase format.'
         # Validate email
         try:
@@ -442,19 +442,6 @@ def order_confirmation(request, order_id):
         return render(request, "error_page.html", context={'error': ex})
 
 
-# only admin or owner can modify the delivery status
-# def update_delivery_status(request):
-#     # orders = Order.objects.all()
-#     ordered_items = OrderItem.objects.all()
-#     ordered_items = OrderItem.objects.select_related('order').all()
-#     if request.method == 'POST':
-#         delivery_status = request.POST.get('delivery_status')
-#         if delivery_status in dict(DELIVERY_STATUS):
-#             ordered_items.order.delivery_status = delivery_status
-#             ordered_items.save()  # save to DB
-#             return redirect("update_delivery_status")
-#     return render(request, 'customer_ordered_delivery_status.html', context={'ordered_items': ordered_items})
-
 @login_required(login_url="login/")
 def update_delivery_status(request):
     ordered_items = OrderItem.objects.select_related('order').all()  # Fetch related orders efficiently
@@ -476,7 +463,6 @@ def update_delivery_status(request):
 def order_section(request):
     customer = Customer.objects.get(user=request.user)
     order = Order.objects.filter(customer=customer)
-    print(f"{order =}")
     if order.exists():
         ordered_item = OrderItem.objects.filter(order__in=order)
         print(f"{ordered_item = }")
@@ -487,9 +473,6 @@ def order_section(request):
     else:
         context = {"no_orders": 'no order found'}
         return render(request, 'ordered_item.html', context)
-
-def generate_receipt(request):
-    pass
 
 
 def customer_feedback(request):
