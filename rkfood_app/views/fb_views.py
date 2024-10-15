@@ -147,8 +147,8 @@ def customer_register(request):
         phone = request.POST.get('phone', None).strip()
         print(f"phone -> {phone = }")
         errors = {}
-    
-        if not username.lower():
+
+        if not username.islower():
             errors['error'] = 'please enter username in lowercase format.'
         # Validate email
         try:
