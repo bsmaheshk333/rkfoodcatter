@@ -137,7 +137,7 @@ def send_otp_via_email_or_sms(user:User):
     #     to=user.phone_number
     # )
 
-from django.db import transaction
+
 
 def customer_register(request):
     if request.method == 'POST':
@@ -441,19 +441,6 @@ def order_confirmation(request, order_id):
     except Order.DoesNotExist as ex:
         return render(request, "error_page.html", context={'error': ex})
 
-
-# only admin or owner can modify the delivery status
-# def update_delivery_status(request):
-#     # orders = Order.objects.all()
-#     ordered_items = OrderItem.objects.all()
-#     ordered_items = OrderItem.objects.select_related('order').all()
-#     if request.method == 'POST':
-#         delivery_status = request.POST.get('delivery_status')
-#         if delivery_status in dict(DELIVERY_STATUS):
-#             ordered_items.order.delivery_status = delivery_status
-#             ordered_items.save()  # save to DB
-#             return redirect("update_delivery_status")
-#     return render(request, 'customer_ordered_delivery_status.html', context={'ordered_items': ordered_items})
 
 @login_required(login_url="login/")
 def update_delivery_status(request):
