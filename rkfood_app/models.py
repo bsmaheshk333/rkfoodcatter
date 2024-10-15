@@ -221,13 +221,17 @@ class CartItem(models.Model):
         return f"{self.cart.customer.username}"
 
 RATING_CHOICES = [
-    ('poor', 'poor'),
-    ('fair', 'fair'),
-    ('good', 'good'),
-    ('very good', 'very good'),
-    ('excellent', 'excellent')
+    ('1', 'poor'),
+    ('2', 'fair'),
+    ('3', 'good'),
+    ('4', 'very good'),
+    ('5', 'excellent')
 ]
 class Feedback(models.Model):
-    name = models.CharField(max_length=20)
-    email = models.EmailField(max_length=20, unique=True)
+    username = models.ForeignKey(User, on_delete=models.CASCADE)
+    email = models.EmailField()
     rating = models.CharField(max_length=10, choices=RATING_CHOICES)
+    comment = models.TextField(max_length=500)
+
+    def __str__(self):
+        return f"rating: {self.rating} by {self.username}"

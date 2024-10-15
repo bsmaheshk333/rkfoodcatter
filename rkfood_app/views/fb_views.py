@@ -1,10 +1,8 @@
-from django.shortcuts import (render, redirect,
-                              get_object_or_404, HttpResponseRedirect,
-                              Http404)
-from rkfood_app.models import (Restaurant,Menu,
-                               MenuItems,
-                               Customer,
-                               Order, UserLoginOtp, CommentModel, OrderItem, CartItem, Cart)
+from django.shortcuts import (render, redirect,get_object_or_404)
+from rkfood_app.models import (Restaurant,Menu,MenuItems,
+                               Customer,Order, UserLoginOtp,
+                               CommentModel, OrderItem, CartItem,
+                               Cart, Feedback)
 from django.urls import reverse
 from django.db.models import Q
 from django.template import TemplateDoesNotExist
@@ -22,6 +20,7 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.http import HttpResponse
 from django.db import transaction, IntegrityError
+
 
 @login_required(login_url="login/")
 def home(request):
@@ -138,6 +137,76 @@ def send_otp_via_email_or_sms(user:User):
     #     to=user.phone_number
     # )
 
+from django.db import transaction
+
+def customer_register(request):
+    if request.method == 'POST':
+        username = request.POST.get('username', None).strip()
+        password = request.POST.get('password', None).strip()
+        email = request.POST.get('email', None).strip()
+        phone = request.POST.get('phone', None).strip()
+        print(f"phone -> {phone = }")
+        errors = {}
+
+        # Validate email
+        try:
+            validate_email(email)
+        except ValidationError:
+            errors['email'] = 'Invalid email address.'
+
+        # Validate username
+        is_username_exist = User.objects.filter(username=username).exists()
+        if is_username_exist:
+            errors['username'] = 'User with this name already exists.'
+
+        if username in ['admin', 'root', 'superuser']:
+            errors['username'] = f'The username {username} is restricted.'
+
+        # Validate password
+        if not any(char.isdigit() for char in password):
+            errors['password'] = 'Password must contain at least 1 digit.'
+
+        # Validate phone number
+        if not phone.isdigit() or len(phone) < 10:
+            errors['phone'] = "Phone number must be digits and at least 10 digits."
+
+        is_phone_no_exist = Customer.objects.filter(phone=phone).exists()
+        if is_phone_no_exist:
+            errors['phone'] = "Phone number already exists."
+
+        if errors:
+            return JsonResponse(errors, status=400)
+        try:
+            with transaction.atomic():
+                # Create the user (not saved yet)
+                user, created = User.objects.get_or_create(username=username, email=email)
+                if created:
+                    user.set_password(password)
+                    user.save()
+                    # Create or update the customer profile
+                    register_customer_profile = user.customer_profile
+                    register_customer_profile.phone = phone
+                    register_customer_profile.save()
+                # send_mail(
+                #     subject="Registration successful.",
+                #     message='Thank you for registering with us! Your account has been created. '
+                #             'Regards, RKFoodCatter. Happy Eating...',
+                #     from_email=settings.DEFAULT_FROM_EMAIL,
+                #     recipient_list=[email],
+                # )
+            return redirect("login")
+        except Exception as e:
+            print(f"Error occurred: {e}")
+            # if created delete it
+            if created:
+                user.delete()
+            errors['email'] = 'Failed to send confirmation email. Please try again.'
+            return JsonResponse(errors, status=500)
+
+    else:
+        return render(request, "customer/register.html")
+
+
 # def customer_login(request):
 #     if request.method == 'POST':
 #         if 'otp_request' in request.POST:
@@ -151,65 +220,13 @@ def send_otp_via_email_or_sms(user:User):
 #
 
 
-def customer_register(request):
-    if request.method == 'POST':
-        username: str = request.POST.get('username', None).strip()
-        password: str = request.POST.get('password', None).strip()
-        email: str = request.POST.get('email', None).strip()
-        phone: str = request.POST.get('phone', None).strip()
-        print(f"phone -> {phone = }")
-        errors = {}
-        # validate email
-        try:
-            validate_email(email)
-        except ValidationError:
-            errors['email'] = 'invalid email address.'
-        # validate username
-        is_username_exist = User.objects.filter(username=username).exists()
-        if is_username_exist:
-            errors['username'] = 'user with this name exist'
-
-        if username in ['admin', 'root', 'superuser']:
-            errors['username'] = f'the username {username} is restricted.'
-
-        if not any(char.isdigit() for char in password):
-            errors['password'] = 'password must contain at least 1 digit.'
-
-        if not phone.isdigit() or len(phone) < 10:
-            errors['phone'] = "phone number must be digits and must be at least 10 digits."
-
-        is_phone_no_exist = Customer.objects.filter(phone=phone).exists()
-        if is_phone_no_exist:
-            errors['phone'] = "Phone number exist already"
-
-        if errors:
-            # better to consider render html template to showcase the error
-            return JsonResponse(errors, status=400)
-        try:
-            user, created = User.objects.get_or_create(username=username, email=email)
-                                                       #default= {'password': password, 'email':email})
-            if created:
-                user.set_password(password)
-                user.save()
-                register_customer_profile = user.customer_profile
-                register_customer_profile.phone = phone
-                register_customer_profile.save()
-            else:
-                user.customer_profile.phone = phone
-                user.customer_profile.save()
-            return redirect("login")
-        except:
-            errors['db'] = 'database error occurred! Please try again.'
-            return JsonResponse(errors, status=400)
-    else:
-        return render(request, "customer/register.html")
-
 # def customer_register(request):
 #     if request.method == 'POST':
-#         username = request.POST.get('username', None).strip()
-#         password = request.POST.get('password', None).strip()
-#         email = request.POST.get('email', None).strip()
-#         phone = request.POST.get('phone', None).strip()
+#         username: str = request.POST.get('username', None).strip()
+#         password: str = request.POST.get('password', None).strip()
+#         email: str = request.POST.get('email', None).strip()
+#         phone: str = request.POST.get('phone', None).strip()
+#         print(f"phone -> {phone = }")
 #         errors = {}
 #         # validate email
 #         try:
@@ -227,36 +244,43 @@ def customer_register(request):
 #         if not any(char.isdigit() for char in password):
 #             errors['password'] = 'password must contain at least 1 digit.'
 #
-#         if not phone or not phone.isdigit() or len(phone) < 10:
+#         if not phone.isdigit() or len(phone) < 10:
 #             errors['phone'] = "phone number must be digits and must be at least 10 digits."
-#         else:
-#             is_phone_no_exist = Customer.objects.filter(phone=phone).exists()
-#             if is_phone_no_exist:
-#                 errors['phone'] = "Phone number exist already"
 #
-#         # if any errors
+#         is_phone_no_exist = Customer.objects.filter(phone=phone).exists()
+#         if is_phone_no_exist:
+#             errors['phone'] = "Phone number exist already"
+#
 #         if errors:
-#             # return render(request, "error_page.html", errors)
-#             return JsonResponse({'error': errors}, status=400)
-#         # otherwise
-#         try:
-#             # user, created = User.objects.get_or_create(username=username, email=email)
-#             #                                            #default= {'password': password, 'email':email})
-#             with transaction.atomic():
-#                 # first delete the incomplete customer_profile
-#                 incomplete_customer = Customer.objects.filter(user__isnull=True)
-#                 if incomplete_customer.exists():
-#                     incomplete_customer.delete()
-#
-#                 user = User.objects.create_user(username=username, password=password, email=email)
-#                 Customer.objects.create(user=user, phone=phone)
-#                 messages.info(request, "registration success.")
-#             return redirect("login")
-#         except Exception as e:
-#             return JsonResponse({'error': f"{e}"}, status=500)
-#             # return render(request, "error_page.ht/ml", errors)
+#             # better to consider render html template to showcase the error
+#             return JsonResponse(errors, status=400)
+#         # try:
+#         user, created = User.objects.get_or_create(username=username, email=email)
+#                                                    #default= {'password': password, 'email':email})
+#         if created:
+#             user.set_password(password)
+#             user.save()
+#             register_customer_profile = user.customer_profile
+#             register_customer_profile.phone = phone
+#             register_customer_profile.save()
+#         else:
+#             user.customer_profile.phone = phone
+#             user.customer_profile.save()
+#         # send register confirmation mail to user
+#         send_mail(
+#             subject="Registration successful.",
+#             message='Thank you for register with us! Your account has been created.'
+#                     'Regards, RKFoodCatter Happy Eating...',
+#             from_email=settings.DEFAULT_FROM_EMAIL,
+#             recipient_list=[email], # registered user
+#         )
+#         return redirect("login")
+#         # except:
+#         #     errors['db'] = 'database error occurred! Please try again.'
+#         #     return JsonResponse(errors, status=400)
 #     else:
 #         return render(request, "customer/register.html")
+
 
 @login_required(login_url="login/")
 def customer_logout(request):
@@ -450,11 +474,10 @@ def update_delivery_status(request):
 def order_section(request):
     customer = Customer.objects.get(user=request.user)
     order = Order.objects.filter(customer=customer)
-    DELIVERY_STATUS = Order._meta.get_field('delivery_status').choices
-    filter_delivery_status = order = Order.objects.filter(Q(delivery_status=DELIVERY_STATUS))
-
+    print(f"{order =}")
     if order.exists():
         ordered_item = OrderItem.objects.filter(order__in=order)
+        print(f"{ordered_item = }")
         context = {
             'ordered_item': ordered_item,
         }
@@ -467,21 +490,36 @@ def generate_receipt(request):
     pass
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+def customer_feedback(request):
+    error = {}
+    rating: str = request.POST.get('rating').lower().strip()
+    message: str = request.POST.get('message').lower().strip()
+    # user = User.objects.get(username=request.user)
+    user = request.user
+    if request.method == 'POST':
+        try:
+            feedback, created = Feedback.objects.get_or_create(username=user,
+                                                               email=user.email,
+                                                               rating=rating,
+                                                               comment=message)
+            with transaction.atomic():
+                if created:
+                    feedback.save()
+                    # send user a confirmation mail
+                    # send_mail(
+                    #     subject="Thanks for your feedback",
+                    #     message=''
+                    #             'Regards, RKFoodCatter. Happy Eating...',
+                    #     from_email=settings.DEFAULT_FROM_EMAIL,
+                    #     recipient_list=[user.email],
+                    # )
+            # feedback page
+            return render(request, "feedback_confirmation.html")
+        except Exception as ex:
+            if created:
+               feedback.delete()
+            error['error'] = ex
+            return JsonResponse(error, status=500)
+    else:
+        return render(request, "base.html")
 
