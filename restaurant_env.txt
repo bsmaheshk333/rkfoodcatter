@@ -1,0 +1,6 @@
+set DB_NAME=restaurant_db
+set DB_USERNAME=postgres
+set DB_PASSWORD=Radhamohan@333
+set HOSTNAME=localhost
+set DB_PORT_NUMBER=5432
+set SECRET_KEY=django-insecure-!334a3+-o4t0u!%2r_bvnxa%d+bmm6j6_$iq4%9r!_m4gkcn*k

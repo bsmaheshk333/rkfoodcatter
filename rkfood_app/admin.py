@@ -1,7 +1,8 @@
 from django.contrib import admin
-from .models import (Restaurant, Menu,
-                     MenuItems, Customer, Order, CommentModel, UserLoginOtp, CartItem, Cart,
-                     OrderItem)
+from .models import (Restaurant, Menu,MenuItems,
+                     Customer, Order, CommentModel,
+                     UserLoginOtp, CartItem, Cart,
+                     OrderItem, Feedback)
 
 
 @admin.register(Restaurant)
@@ -39,4 +40,8 @@ class OrderModelAdmin(admin.ModelAdmin):
 
 @admin.register(OrderItem)
 class OrderItemAdmin(admin.ModelAdmin):
+    pass
+
+@admin.register(Feedback)
+class FeedbackAdmin(admin.ModelAdmin):
     pass

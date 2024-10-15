@@ -184,8 +184,22 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Default primary key field type
+
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGOUT_REDIRECT_URL = '/'
 LOGIN_URL = '/login/'
+
+# EMAIL SERVICE
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'bsmaheshk333@gmail.com'
+# EMAIL_HOST_PASSWORD = 'Durgamata@333'
+# DEFAULT_FROM_EMAIL = 'bsmaheshk333@gmail.com'
+
+# load oauth2 token
+from rkfood_app.oauth2_token import get_oauth2_token
+EMAIL_HOST_PASSWORD = get_oauth2_token()
