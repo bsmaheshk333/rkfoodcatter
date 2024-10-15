@@ -25,7 +25,6 @@ urlpatterns = [
     path("delivery_status/<int:id>/", fb_views.update_delivery_status, name="delivery_status"),
     # path('profile/order_section/<int:id>/', fb_views.order_section, name="order_section"),
     path('profile/order_section/', fb_views.order_section, name="order_section"),
-    path('feedback/', fb_views.customer_feedback, name="feedback"),
 
     # url of admin to monitor ordered food to deliver
     path('update_delivery_status/', fb_views.update_delivery_status, name="update_delivery_status"),
