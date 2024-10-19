@@ -1,4 +1,4 @@
-   body {
+        body {
             background-color: #f4f4f9;
             font-family: 'Arial', sans-serif;
         }
@@ -7,20 +7,26 @@
             margin-top: 20px;
         }
 
-        /* Compact card layout for menu item */
         .menu-item {
             background-color: #fff;
             border-radius: 8px;
             box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
             padding: 15px;
             margin-bottom: 30px;
+            overflow: hidden;
         }
 
         .menu-item img {
-            width: 100%;
+            width: 50%;
+            height: auto;
             border-radius: 6px;
             object-fit: cover;
-            max-height: 300px;
+        }
+
+        @media (min-width: 768px) {
+            .menu-item img {
+                max-height: 400px;
+            }
         }
 
         .menu-item h3 {
@@ -52,7 +58,7 @@
             border-radius: 6px;
         }
 
-        /* More compact styling for the comment section */
+        /* Comment section styling */
         .comment-section {
             background-color: #fff;
             padding: 15px;
@@ -72,6 +78,7 @@
             border: 1px solid #ddd;
             padding: 10px;
             font-size: 0.95rem;
+            width: 100%;
         }
 
         .comment-list li {

@@ -24,13 +24,20 @@
             box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
             padding: 15px;
             margin-bottom: 30px;
+            overflow: hidden;
         }
 
         .menu-item img {
-            width: 100%;
+            width: 50%;
+            height: auto; /* Ensures the height adjusts based on the aspect ratio */
             border-radius: 6px;
-            object-fit: cover;
-            max-height: 300px;
+            object-fit: cover; /* Maintains aspect ratio, crops excess if necessary */
+        }
+
+        @media (min-width: 768px) {
+            .menu-item img {
+                max-height: 400px; /* Limit max height on larger screens */
+            }
         }
 
         .menu-item h3 {
@@ -62,7 +69,7 @@
             border-radius: 6px;
         }
 
-        /* More compact styling for the comment section */
+        /* Comment section styling */
         .comment-section {
             background-color: #fff;
             padding: 15px;
@@ -82,6 +89,7 @@
             border: 1px solid #ddd;
             padding: 10px;
             font-size: 0.95rem;
+            width: 100%;
         }
 
         .comment-list li {
@@ -135,7 +143,7 @@
         <!-- Item Details Section -->
         <div class="row menu-item">
             <div class="col-md-6">
-                <img src="{{ item.image.url }}" alt="{{ item.name }}">
+                <img src="{{ item.image.url }}" alt="{{ item.name }}" class="img-fluid">
             </div>
             <div class="col-md-6">
                 <h3>{{ item.name }}</h3>
@@ -180,7 +188,7 @@
             {% endif %}
 
             <!-- Display existing comments -->
-            <h5 class="mt-4">Reviews</h5>
+            <h5 class="mt-4">Reviews ({{comment_count}})</h5>
             <ul class="comment-list">
                 {% for cmt in comments %}
                 <li>

@@ -57,8 +57,6 @@ class Restaurant(models.Model):
         return f"{self.name} Opens at: {self.formatted_open_time}, Close at: {self.formatted_close_time}"
 
 
-
-
 menu_choice = [
     ('Breakfast', 'Breakfast'),
     ('Lunch', 'Lunch'),
@@ -71,16 +69,14 @@ class Menu(models.Model):
                                    related_name='restaurant')
     # breakfast, lunch, dinner
     menu_title = models.CharField(max_length=10, choices=menu_choice, default=menu_choice[0][0])
-    description = models.TextField()
+    description = models.TextField(null=True, blank=True)
 
     def __str__(self):
-        return self.menu_title
+        return f"{self.menu_title} for {self.restaurant.name}"
 
 
 class MenuItems(models.Model):
     menu = models.ForeignKey(Menu, on_delete=models.CASCADE, related_name='main_menu')
-    # if in case you have multiple restaurant, ( not required now)
-    # restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, related_name="restaurant")
     name = models.CharField(max_length=100)
     image = models.ImageField(default="avatar.jpg", upload_to="menu_items/", verbose_name="image of the food")
     description = models.TextField(max_length=100)
@@ -140,7 +136,7 @@ class Order(models.Model):
     delivery_status = models.CharField(max_length=15, choices=DELIVERY_STATUS)
 
     def __str__(self):
-        return (f"User:{self.customer.user} || Payment status: {self.payment_status} || Payment Method:{self.payment_method} || "
+        return (f"order{self.id}User:{self.customer.user} || Payment status: {self.payment_status} || Payment Method:{self.payment_method} || "
                 f"Order Status: {self.order_status}")
 
 class OrderItem(models.Model):
@@ -155,7 +151,7 @@ class OrderItem(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"Qty: {self.quantity} || Unit price: {self.unit_price} || Subtotal: {self.subtotal}"
+        return f"order_Id {self.order.id} Qty: {self.quantity} || Unit price: {self.unit_price} || Subtotal: {self.subtotal}"
 
 class UserLoginOtp(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -232,6 +228,7 @@ class Feedback(models.Model):
     email = models.EmailField()
     rating = models.CharField(max_length=10, choices=RATING_CHOICES)
     comment = models.TextField(max_length=500)
+    posted_on = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"rating: {self.rating} by {self.username}"

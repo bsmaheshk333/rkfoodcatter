@@ -10,6 +10,7 @@ from rest_framework_simplejwt.views import (
 
 urlpatterns = [
     path("", fb_views.home, name="base"),
+    # path('select_restaurant/', fb_views.select_restaurant, name="select_restaurant"),
     path("search_item/", fb_views.search_menu_item, name="search_item"),
     path('profile/<int:id>/', fb_views.customer_profile, name="profile"),
     path('login/', fb_views.customer_login, name="login"),
@@ -26,6 +27,7 @@ urlpatterns = [
     # path('profile/order_section/<int:id>/', fb_views.order_section, name="order_section"),
     path('profile/order_section/', fb_views.order_section, name="order_section"),
     path('feedback/', fb_views.customer_feedback, name="feedback"),
+    path('view_feedback/', fb_views.view_feedback, name="view_feedback"),
 
     # url of admin to monitor ordered food to deliver
     path('update_delivery_status/', fb_views.update_delivery_status, name="update_delivery_status"),

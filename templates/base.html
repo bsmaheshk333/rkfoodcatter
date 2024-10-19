@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>RKFoodCatters</title>
+    <title>RKFoodCatters || Home</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
           crossorigin="anonymous">
@@ -27,7 +27,7 @@
         transform: translateY(0);
     }
     50% {
-        transform: translateY(-10px);
+        transform: translateY(10px);
     }
 }
 
@@ -66,7 +66,6 @@
     animation: shine 3s ease-in-out infinite;
 }
 
-/* Shining Animation for Text */
 @keyframes shine {
     from {
         background-position: 0%;
@@ -126,6 +125,18 @@
         color: gold;
     }
 
+    .logout-btn {
+    color: red;
+    text-decoration: none; /* removes the underline on hyperlink */
+    }
+    .logout-btn:hover {
+        color: darkred;
+        text-decoration: underline;
+    }
+        .nav-item:hover {
+        color: white;
+        text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -152,9 +163,12 @@
             <li class="nav-item">
                 <a class="nav-link" href="{% url 'update_delivery_status' %}">Track orders</a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'view_feedback' %}">View Feedback</a>
+            </li>
             {% endif %}
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                <a class="nav-link logout-btn" href="{% url 'logout' %}">Logout</a>
             </li>
         </ul>
 
@@ -163,7 +177,6 @@
             <i class="fas fa-shopping-cart"></i>
             <span class="cart-count">{{no_of_cart_item}}</span>
         </a>
-
         <!-- Search Form -->
         <form action="{% url 'search_item' %}" method="post" class="form-inline my-2 my-lg-0 ml-3">
             {% csrf_token %}
@@ -178,6 +191,19 @@
     <div class="logo-text">RKFood<span>Catters</span></div>
 </div>
 
+<!--select restaurant section-->
+    <form method="post" action="{% url 'base' %}">
+        {% csrf_token %}
+        <label for="restaurant">Choose a Restaurant:</label>
+        <select name="restaurant" id="restaurant" required>
+            <option value="">Select a restaurant</option>
+            {% for restaurant in restaurants %}
+                <option value="{{ restaurant.name }}">{{ restaurant.name }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="bt btn-outline-primary">Show Menu</button>
+    </form>
+
 <div class="container mt-5 scroll-buttons">
     <a href="#breakfast" class="btn btn-primary">Breakfast</a>
     <a href="#lunch" class="btn btn-primary">Lunch</a>
@@ -185,7 +211,6 @@
     <a href="#beverages" class="btn btn-primary">Beverages</a>
 </div>
 
-<!-- Content -->
 <div class="container">
     <!-- Breakfast Section -->
     <div id="menu-section" class="menu-section">
@@ -208,6 +233,8 @@
                 </div>
             </div>
             {% endif %}
+            {% empty %}
+                <p>no items found</p>
             {% endfor %}
         </div>
     </div>
@@ -233,6 +260,8 @@
                 </div>
             </div>
             {% endif %}
+            {% empty %}
+                <p>no items found</p>
             {% endfor %}
         </div>
     </div>
@@ -257,6 +286,8 @@
                 </div>
             </div>
             {% endif %}
+            {% empty %}
+                <p>no items found</p>
             {% endfor %}
         </div>
     </div>
@@ -283,6 +314,8 @@
                 </div>
             </div>
             {% endif %}
+            {% empty %}
+                <p>no items found</p>
             {% endfor %}
         </div>
     </div>
@@ -315,7 +348,7 @@
             <textarea class="form-control" placeholder="please write your comment here..."
                       id="message" name="message" rows="4" required></textarea>
         </div>
-        <button type="submit" class="btn btn-primary">Submit Feedback</button>
+        <button type="submit" class="btn btn-primary">Send Feedback</button>
     </form>
 </div>
 

@@ -31,6 +31,7 @@
 
                     <!-- Order Details -->
                     <div class="order-details">
+                        <span><strong>Restaurant Name:</strong> {{item.menu_item.menu.restaurant.name}}</span>
                         <span><strong>Order ID:</strong> {{ item.order.id }}</span>
                         <span><strong>Item:</strong> {{ item.menu_item.name }}</span>
                         <span><strong>Total Amount:</strong> ₹{{ item.subtotal }}</span>

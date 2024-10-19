@@ -8,9 +8,9 @@ body {
             margin: 0;
         }
         .container {
-            width: 100%;
-            max-width: 500px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            width: 100% !important;;
+            max-width: 500px !important;;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1) !important;;
             border-radius: 12px;
             background-color: #fff;
             padding: 20px;
@@ -18,19 +18,19 @@ body {
 
         /* Logo inside the card */
         .logo-box {
-            text-align: center;
-            margin-bottom: 20px;
+            text-align: center !important;;
+            margin-bottom: 20px !important;;
         }
         .logo-box h1 {
-            font-size: 3rem;
-            font-weight: bold;
-            color: #007bff;
-            margin-bottom: 0;
+            font-size: 3rem !important;;
+            font-weight: bold !important;;
+            color: #007bff !important;;
+            margin-bottom: 0 !important;;
         }
         .logo-box p {
-            font-size: 1.5rem;
-            font-style: italic;
-            color: #007bff;
+            font-size: 1.5rem !important;;
+            font-style: italic !important;;
+            color: #007bff !important;;
         }
 
         /* Right side: Login form */

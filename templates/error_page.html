@@ -49,6 +49,17 @@
 {% endif %}
 {% endif %}
 
+{% if feedback_error %}
+<div class="error-container text-center">
+    <h1>Error</h1>
+    <h2>{{feedback_error}}</h2>
+    <p>{{feedback_error}}</p>
+    <ul class="list-unstyled">
+      <li>Return to the <a href="/">home page</a>.</li>
+    </ul>
+
+</div>
+{% endif %}
 
 <!-- Bootstrap JS, Popper.js, and jQuery -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

@@ -21,25 +21,31 @@ from django.conf import settings
 from django.http import HttpResponse
 from django.db import transaction, IntegrityError
 
-
 @login_required(login_url="login/")
 def home(request):
-    try:
-        menu_items = MenuItems.objects.all()
-        cart, created = Cart.objects.get_or_create(customer=request.user)
-        if not cart.cart_items.all(): # if cart is empty
-            no_of_cart_item = 0  # set count to zero
-        else:
-            no_of_cart_item = cart.get_total_number()  # else get the total qty in the cart
-        context = {
-            'menu_items': menu_items,
-            'no_of_cart_item': no_of_cart_item
-        }
-        return render(request, "base.html", context)
-    except MenuItems.DoesNotExist:
-        return render(request, "error_page.html")
-    except TemplateDoesNotExist as ex:
-        return render(request, "error_page.html", {'error': ex})
+    restaurants = Restaurant.objects.all()
+    menu_items = []
+    no_of_cart_item = 0
+    if request.method == "POST":
+        get_restaurant = request.POST.get('restaurant', None)
+        if get_restaurant:
+            try:
+                selected_restaurant = Restaurant.objects.get(name=get_restaurant)
+                # menu__restaurant -- Menu has a foreign key to Restaurant, so we can filter this way
+                menu_items = MenuItems.objects.filter(menu__restaurant=selected_restaurant)
+            except Restaurant.DoesNotExist:
+                return render(request, "base.html",
+                              {'error': "Restaurant not found", 'menu_items': [], 'restaurants': restaurants})
+    cart, created = Cart.objects.get_or_create(customer=request.user)
+    if cart.cart_items.exists():  # if cart is not empty
+        no_of_cart_item = cart.get_total_number()  # get the total qty in the cart
+    context = {
+        'menu_items': menu_items,
+        'no_of_cart_item': no_of_cart_item,
+        'restaurants': restaurants
+    }
+    return render(request, "base.html", context)
+
 
 @login_required(login_url="login/")
 def item_detail_view(request, slug):
@@ -57,13 +63,15 @@ def item_detail_view(request, slug):
                 new_comment = CommentModel(user=request.user,item=item, comment=comment_text)
                 new_comment.save()
                 return redirect('detail_view', slug=item.slug)
-
             else:
                 print('something ===')
-        # if method is GET render the details
+        # handle GET
+        item = get_object_or_404(MenuItems, slug=slug)
+        comment = CommentModel.objects.filter(item=item)
+        comment_count = comment.count()
         return render(request, 'item_detail_view.html',
-                      context = {'item': item, 'comments': comments,
-                                 'existing_comment': existing_comment})
+                      context = {'item': item, 'comments': comments,'existing_comment': existing_comment,
+                                 'comment_count': comment_count})
 
     except TemplateDoesNotExist as ex:
         context = {'template_error': ex}
@@ -464,10 +472,9 @@ def order_section(request):
     customer = Customer.objects.get(user=request.user)
     order = Order.objects.filter(customer=customer)
     if order.exists():
-        ordered_item = OrderItem.objects.filter(order__in=order)
-        print(f"{ordered_item = }")
+        ordered_items = OrderItem.objects.filter(order__in=order)
         context = {
-            'ordered_item': ordered_item,
+            'ordered_item': ordered_items,
         }
         return render(request, 'ordered_item.html', context)
     else:
@@ -498,13 +505,23 @@ def customer_feedback(request):
                     #     from_email=settings.DEFAULT_FROM_EMAIL,
                     #     recipient_list=[user.email],
                     # )
-            # feedback page
             return render(request, "feedback_confirmation.html")
         except Exception as ex:
             if created:
                feedback.delete()
-            error['error'] = ex
-            return JsonResponse(error, status=500)
+            error['feedback_error'] = ex
+            return render(request, "error_page.html", context=error)
     else:
         return render(request, "base.html")
 
+def view_feedback(request):
+    try:
+        feedback = Feedback.objects.all().order_by("-posted_on")
+        feedback_count = feedback.count()
+        context = {
+            'feedbacks': feedback,
+            'feedback_count':feedback_count
+        }
+        return render(request, "feedback_confirmation.html", context)
+    except Feedback.DoesNotExist as e:
+        return render(request, "error_page.html", context={'error': e})
