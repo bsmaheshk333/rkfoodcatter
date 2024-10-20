@@ -1,0 +1,6 @@
+# Ignore Python compiled files
+*.pyc
+__pycache__/
+#ignore env file from tracking in the repository
+restaurant.env
+
