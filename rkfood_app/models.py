@@ -139,6 +139,7 @@ class Order(models.Model):
         return (f"order{self.id}User:{self.customer.user} || Payment status: {self.payment_status} || Payment Method:{self.payment_method} || "
                 f"Order Status: {self.order_status}")
 
+
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
     menu_item = models.ForeignKey(MenuItems, on_delete=models.CASCADE)
@@ -152,6 +153,7 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"order_Id {self.order.id} Qty: {self.quantity} || Unit price: {self.unit_price} || Subtotal: {self.subtotal}"
+
 
 class UserLoginOtp(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

@@ -15,6 +15,9 @@ from datetime import timedelta
 import environ
 import os
 
+env = environ.Env()
+env.read_env(env_file="restaurant.env")
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -23,11 +26,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-!334a3+-o4t0u!%2r_bvnxa%d+bmm6j6_$iq4%9r!_m4gkcn*k'
-# SECRET_KEY = os.environ.get('SECRET_KEY')
+SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+# on nginx
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
@@ -109,35 +112,17 @@ WSGI_APPLICATION = 'restaurant.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': "restaurant_db", # os.environ.get('DB_NAME'),
-        'USER': "postgres", # os.environ.get('DB_USERNAME'),
-        'PASSWORD': "Radhamohan@333", # os.environ.get("DB_PASSWORD"),
-        'HOST': "localhost", # os.environ.get('HOSTNAME'),
-        'PORT': "5432" # os.environ.get('DB_PORT_NUMBER'),
+        'NAME': env('DB_NAME'),
+        'USER': env('DB_USERNAME'),
+        'PASSWORD': env('DB_PASSWORD'),
+        'HOST': env('HOSTNAME'),
+        'PORT': env('DB_PORT_NUM')
     }
 }
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': os.environ.get('DB_NAME'),
-#         'USER': os.environ.get('DB_USERNAME'),
-#         'PASSWORD': os.environ.get("DB_PASSWORD"),
-#         'HOST': os.environ.get('HOSTNAME'),
-#         'PORT': os.environ.get('DB_PORT_NUMBER'),
-#     }
-# }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -191,15 +176,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGOUT_REDIRECT_URL = '/'
 LOGIN_URL = '/login/'
 
-# EMAIL SERVICE
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'bsmaheshk333@gmail.com'
-EMAIL_HOST_PASSWORD = 'Matadurga@333'
-DEFAULT_FROM_EMAIL = 'bsmaheshk333@gmail.com'
-
-# # load oauth2 token
-# from rkfood_app.oauth2_token import get_oauth2_token
-# EMAIL_HOST_PASSWORD = get_oauth2_token()
+EMAIL_HOST_USER = env('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = env('EMAIL_HOST_USER')

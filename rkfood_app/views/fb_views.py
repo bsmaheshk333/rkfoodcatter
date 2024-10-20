@@ -145,7 +145,6 @@ def send_otp_via_email_or_sms(user:User):
     #     to=user.phone_number
     # )
 
-from django.db import transaction
 
 def customer_register(request):
     if request.method == 'POST':
@@ -197,13 +196,13 @@ def customer_register(request):
                     register_customer_profile = user.customer_profile
                     register_customer_profile.phone = phone
                     register_customer_profile.save()
-                # send_mail(
-                #     subject="Registration successful.",
-                #     message='Thank you for registering with us! Your account has been created. '
-                #             'Regards, RKFoodCatter. Happy Eating...',
-                #     from_email=settings.DEFAULT_FROM_EMAIL,
-                #     recipient_list=[email],
-                # )
+                send_mail(
+                    subject="Thanks for registering with RKFoodCatter",
+                    message='Thank you for registering with us! Your account has been created. '
+                            'Regards, RKFoodCatter. Happy Eating...',
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[email],
+                )
             return redirect("login")
         except Exception as e:
             print(f"Error occurred: {e}")
@@ -418,6 +417,7 @@ def checkout(request):
 
 @login_required(login_url="login/")
 def payment_selection(request, order_id):
+    user = request.user
     order = get_object_or_404(Order, id=order_id)
     if request.method == 'POST':
         payment_method: str = request.POST.get('payment_method', None).strip()
@@ -434,6 +434,14 @@ def payment_selection(request, order_id):
             else:
                 order.payment_status = False
                 order.order_status = "pending"
+        send_mail(
+            subject="Your payment is successful",
+            message=f'Payment Mode: {payment_method}'
+                    f"\nOrder status: {order.order_status}"
+                    '\nRegards, RKFoodCatter. \nHappy Eating...',
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email],
+        )
         order.save()
         return redirect('order_confirmation', order_id=order.id)
 
@@ -472,7 +480,7 @@ def order_section(request):
     customer = Customer.objects.get(user=request.user)
     order = Order.objects.filter(customer=customer)
     if order.exists():
-        ordered_items = OrderItem.objects.filter(order__in=order)
+        ordered_items = OrderItem.objects.filter(order__in=order) # .order_by("")
         context = {
             'ordered_item': ordered_items,
         }
@@ -498,13 +506,13 @@ def customer_feedback(request):
                 if created:
                     feedback.save()
                     # send user a confirmation mail
-                    # send_mail(
-                    #     subject="Thanks for your feedback",
-                    #     message=''
-                    #             'Regards, RKFoodCatter. Happy Eating...',
-                    #     from_email=settings.DEFAULT_FROM_EMAIL,
-                    #     recipient_list=[user.email],
-                    # )
+                    send_mail(
+                        subject="Thanks for your feedback",
+                        message=''
+                                'Regards, RKFoodCatter. Happy Eating...',
+                        from_email=settings.DEFAULT_FROM_EMAIL,
+                        recipient_list=[user.email],
+                    )
             return render(request, "feedback_confirmation.html")
         except Exception as ex:
             if created:
