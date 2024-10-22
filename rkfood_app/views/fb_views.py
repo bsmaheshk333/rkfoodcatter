@@ -26,15 +26,19 @@ from django.db import transaction, IntegrityError
 def home(request):
     try:
         context = {}
-        user = request.user
+        # user = User.objects.get(username=request.user)
         no_of_cart_item = 0
-        cart, created = Cart.objects.get_or_create(customer=user)
-        if cart.cart_items.exists():  # if cart is not empty
-            no_of_cart_item = cart.get_total_number()  # get the total qty in the cart
+        if request.user.is_authenticated:
+            user = request.user.id
+            cart, created = Cart.objects.get_or_create(customer=user)
+            if cart.cart_items.exists():  # if cart is not empty
+                no_of_cart_item = cart.get_total_number()  # get the total qty in the cart
+                context['no_of_cart_item'] = no_of_cart_item
+                print(f"{no_of_cart_item = }")
             context['no_of_cart_item'] = no_of_cart_item
-            print(f"{no_of_cart_item = }")
-        context['no_of_cart_item'] = no_of_cart_item
-        return render(request, "base.html", context)
+            return render(request, "base.html", context)
+        else:
+            return redirect("login")
     except TemplateDoesNotExist:
         return JsonResponse({'error': 'page not found'}, status=404)
 
@@ -117,37 +121,40 @@ def customer_profile(request, id):
         return JsonResponse({'error': 'Template does not exist'}, status=404)
 
 
+from django.contrib.auth import authenticate, login
+from django.shortcuts import render, redirect
+from django.http import HttpResponse
+
 def customer_login(request):
     errors = {}
-    # if user is disabled or removed
+    username = request.POST.get('username') if request.method == 'POST' else ''
+    password = request.POST.get('password') if request.method == 'POST' else ''
+
     if request.user.is_authenticated:
-        errors['error'] = 'you must be logged in to access this page'
+        return redirect('base')
+
     if request.method == 'POST':
-        username: str = request.POST.get('username', None)
-        password: str = request.POST.get('password', None)
-        # Validate username and password presence
         if not username:
             errors['username'] = "Invalid username."
         if not password:
             errors['password'] = "Invalid password."
-        if not errors:
-            # if username and password are provided only then you authenticate
+
+        if username and password and not errors:
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
                 with open("user_logged_data.txt", mode="a") as log_file:
-                    print(f"{log_file = }")
-                    log_file.write(f"user: {request.user}")
+                    log_file.write(f"user: {request.user}\n")
                 return redirect('base')
             else:
-                response = HttpResponse().status_code
-                errors['status_code'] = response
+                errors['invalid_credentials'] = "Invalid username or password."
 
-        return render(request, "error_page.html",
-                      context = {'errors': errors, 'username': username, 'password': password})
+    return render(request, "customer/login.html", {
+        'errors': errors,
+        'username': username,
+        'password': password,
+    })
 
-    # If GET request, just render the login form
-    return render(request, "customer/login.html")
 
 def send_otp_via_email_or_sms(user:User):
     otp_instance = UserLoginOtp.objects.create(user=user)
@@ -412,29 +419,27 @@ def update_cart(request, slug):
 
 @login_required(login_url="login/")
 def checkout(request):
-    try:
-        cart = Cart.objects.get(customer=request.user)
-        customer = Customer.objects.get(user=request.user)
-        if cart.cart_items.exists():
-            # create the order
-            order = Order.objects.create(customer= customer,
-                                         total_amount = cart.get_cart_total(),
-                                         )
-            # move cart items to order
-            for cart_item in cart.cart_items.all():
-                OrderItem.objects.create(order=order, menu_item=cart_item.item,
-                                         quantity = cart_item.quantity,
-                                         unit_price = cart_item.item.price,
-                                         subtotal=cart_item.item.price * cart_item.quantity
-                                         )
-            # FIXME -> if the payment is failed or pending, canceled, cart should not be deleted
-            # FIXME -> only successful order should make cart empty.
-            cart.cart_items.all().delete()
-            return redirect('payment_selection', order_id=order.id)
-        # else if cart does not exist
+    # try:
+    cart = Cart.objects.get(customer=request.user)
+    customer = Customer.objects.get(user=request.user)
+    if cart.cart_items.exists():
+        # create the order if cart is not empty
+        order = Order.objects.create(customer= customer,
+                                     total_amount = cart.get_cart_total(),
+                                     payment_status=False, order_status="pending")
+        # move cart items to order section
+        for cart_item in cart.cart_items.all():
+            OrderItem.objects.create(order=order, menu_item=cart_item.item,
+                                     quantity = cart_item.quantity,
+                                     unit_price = cart_item.item.price,
+                                     subtotal=cart_item.item.price * cart_item.quantity
+                                     )
+        cart.cart_items.all().delete()
+        return redirect('payment_selection', order_id=order.id)
+    else:
         return redirect('cart_view')
-    except Exception as ex:
-        return HttpResponse("customer profile does not exist.")
+    # except Exception as ex:
+    #     return HttpResponse("customer profile does not exist.")
         # return render(request, "error_page.html", {'error': ex})
 
 
@@ -442,21 +447,26 @@ def checkout(request):
 def payment_selection(request, order_id):
     user = request.user
     order = get_object_or_404(Order, id=order_id)
+    order_item = OrderItem.objects.filter(order=order)
     if request.method == 'POST':
         payment_method: str = request.POST.get('payment_method', None).strip()
         if payment_method:
             order.payment_method = payment_method.lower()
-            if payment_method == 'cash':
+            if payment_method == 'cash' and order.payment_status is False:
                 order.payment_status = True
-                order.delivery_status = "received"
-                order.order_status = "completed"
+                order.delivery_status = "Received"
+                order.order_status = "Completed"
+                order.save()
             elif payment_method == ['online',  'credit card']:
+                # temporarily setting it to false due to unavailability
                 order.payment_status = False
-                order.order_status = "canceled"
+                order.order_status = "Canceled"
                 # return JsonResponse({'details': 'online mode is not available yet.'}, status=501)
             else:
                 order.payment_status = False
-                order.order_status = "pending"
+                order.delivery_status = "Transaction failed"
+                order.order_status = "Failed"
+                order.delete()
         send_mail(
             subject="Your payment is successful",
             message=f'Payment Mode: {payment_method}'
@@ -465,7 +475,7 @@ def payment_selection(request, order_id):
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[user.email],
         )
-        order.save()
+        # order.save()
         return redirect('order_confirmation', order_id=order.id)
 
     return render(request, 'payment_selection.html', {'order': order})
@@ -484,8 +494,7 @@ def order_confirmation(request, order_id):
 @login_required(login_url="login/")
 def update_delivery_status(request):
     user = request.user # current logged in user
-    ordered_items = OrderItem.objects.select_related('order').all()  # Fetch related orders efficiently
-    # get the DELIVERY_STATUS from model
+    ordered_items = OrderItem.objects.select_related('order').all()
     DELIVERY_STATUS = Order._meta.get_field('delivery_status').choices
     if request.method == 'POST':
         delivery_status = request.POST.get('delivery_status')
@@ -510,7 +519,8 @@ def update_delivery_status(request):
 @login_required(login_url="login/")
 def order_section(request):
     customer = Customer.objects.get(user=request.user)
-    order = Order.objects.filter(customer=customer)
+    # show only success payments
+    order = Order.objects.filter(customer=customer, payment_status=True, order_status="Completed")
     if order.exists():
         ordered_items = OrderItem.objects.filter(order__in=order) # .order_by("")
         context = {
@@ -520,6 +530,20 @@ def order_section(request):
     else:
         context = {"no_orders": 'no order found'}
         return render(request, 'ordered_item.html', context)
+
+@login_required(login_url="login/")
+def show_pending_orders(request):
+    user = request.user
+    customer = Customer.objects.get(user=user)
+    pending_orders = Order.objects.filter(customer=customer, payment_status=False)
+    if pending_orders.exists():
+        pending_ordered_item = OrderItem.objects.filter(order__in=pending_orders)
+        context = {
+            'pending_ordered_item': pending_ordered_item
+        }
+        return render(request, 'pending_orders.html', context)
+    else:
+        return JsonResponse({'error': 'pending orders doesnt exist'}, status=400)
 
 
 def customer_feedback(request):

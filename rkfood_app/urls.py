@@ -24,7 +24,8 @@ urlpatterns = [
     path('order_confirmation/<int:order_id>/', fb_views.order_confirmation, name="order_confirmation"),
     path("delivery_status/<int:id>/", fb_views.update_delivery_status, name="delivery_status"),
     # path('profile/order_section/<int:id>/', fb_views.order_section, name="order_section"),
-    path('profile/order_section/', fb_views.order_section, name="order_section"),
+    path('order_section/', fb_views.order_section, name="order_section"),
+    path('pending_orders/', fb_views.show_pending_orders, name="pending_orders"),
     path('feedback/', fb_views.customer_feedback, name="feedback"),
     path('view_feedback/', fb_views.view_feedback, name="view_feedback"),
 

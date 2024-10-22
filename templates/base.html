@@ -10,8 +10,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
-    <link rel="stylesheet" href="{% static 'css/cart_view.css' %}">
-    <link rel="stylesheet" href="{% static 'css/search.css' %}">
 </head>
 
 <body style="font-family: segoe UI">
@@ -22,25 +20,35 @@
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNavDropdown">
-        <ul class="navbar-nav ml-auto">
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'menu_item' %}">Menu</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'order_section' %}">Orders</a>
-            </li>
-            {% if request.user.is_staff %}
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'update_delivery_status' %}">Track orders</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'view_feedback' %}">View Feedback</a>
-            </li>
-            {% endif %}
-            <li class="nav-item">
-                <a class="nav-link logout-btn" href="{% url 'logout' %}">Logout</a>
-            </li>
-        </ul>
+        {% if request.user.is_authenticated %}
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'menu_item' %}">Menu</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'order_section' %}">Orders</a>
+                </li>
+                {% if request.user.is_staff %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'update_delivery_status' %}">Track orders</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'view_feedback' %}">View Feedback</a>
+                </li>
+                {% if request.user.is_staff %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'admin:index' %}">{{request.user}}</a>
+                    </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'profile' %}">{{request.user}}</a>
+                        </li>
+                {% endif %}
+        {% endif %}
+                <li class="nav-item">
+                    <a class="nav-link logout-btn" href="{% url 'logout' %}">Logout</a>
+                </li>
+            </ul>
         <!-- Cart Icon -->
         <a href="{% url 'cart_view' %}" class="cart-icon">
             <i class="fas fa-shopping-cart"></i>
@@ -52,6 +60,7 @@
             <input class="form-control mr-sm-2" type="search" placeholder="Search item" aria-label="Search" name="query_item">
             <button class="btn btn-outline-light my-2 my-sm-0" type="submit">Search</button>
         </form>
+        {% endif %}
     </div>
 </nav>
 

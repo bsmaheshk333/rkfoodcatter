@@ -44,8 +44,9 @@ My Orders
     .card-heading {
         font-size: 24px;
         margin-bottom: 20px;
+        margin-left: 20px;
         color: #333;
-        text-align: center;
+        text-align: left;
     }
 
     .order-list {
@@ -128,22 +129,11 @@ My Orders
     }
 
 </style>
-
-<div class="container">
-    <!-- Breadcrumb navigation -->
-    <nav class="breadcrumb">
-        <a href="{% url 'base' %}">Home</a>
-        <span>>></span>
-        <span>My Orders</span>
-    </nav>
-    <div>
-        <a href="{% url 'pending_orders' %}">Pending Orders</a>
-    </div>
+{% if pending_ordered_item %}
     <div class="card">
-        <h2 class="card-heading">My Orders</h2>
-        {% if ordered_item %}
+        <h2 class="card-heading">Pending orders</h2>
         <ul class="order-list">
-            {% for item in ordered_item %}
+            {% for item in pending_ordered_item %}
             <li class="order-item">
                 <!-- Image of food item -->
                 <div class="item-img">
@@ -152,37 +142,50 @@ My Orders
                 <!-- Order Details -->
                 <div class="order-details">
                     <span class="restaurant-name"><strong>Restaurant Name: </strong>{{item.menu_item.menu.restaurant.name}}</span>
-                    <span><strong>Order ID:</strong> {{ item.order.id }}</span>
-                    <span style="color: green;">
+                    <span>
+                        <strong>Order ID:</strong>
+                        {{ item.order.id }}
+                    </span>
+                    <span>
                         <strong>Order Status:</strong>
                         {{ item.order.order_status }}
                     </span>
-                    <span><strong>Item:</strong> {{ item.menu_item.name }}</span>
-                    <span><strong>Total Amount:</strong> ₹{{ item.subtotal }}</span>
-                    <span><strong>Ordered On:</strong> {{ item.order.order_date }}</span>
-                    <span><strong>Quantity:</strong> {{ item.quantity }}</span>
-                    <span><strong>Unit Price:</strong> ₹{{ item.unit_price }}</span>
+                    <span>
+                        <strong>Item:</strong>
+                        {{ item.menu_item.name }}
+                    </span>
+                    <span>
+                        <strong>Total Amount:</strong>
+                        ₹{{ item.subtotal }}
+                    </span>
+                    <span>
+                        <strong>Ordered On:</strong>
+                        {{ item.order.order_date }}
+                    </span>
+                    <span>
+                        <strong>Quantity:</strong>
+                        {{ item.quantity }}
+                    </span>
+                    <span>
+                        <strong>Unit Price:</strong>
+                        ₹{{ item.unit_price }}
+                    </span>
                     <!-- Payment & Delivery Status -->
                     <div class="status-row">
                         <span>
                             <strong>Payment status:</strong>
-                            <strong style="color: #1ba82e;">{{ item.order.payment_status|yesno:"SUCCESSFUL, FAILED" }}</strong>
+                            <strong style="color: #1ba82e;">{{ item.order.payment_status|yesno:"SUCCESSFUL,FAILED" }}</strong>
                         </span>
-                        <span><strong>Delivery status:</strong>
-                            <span style="color: green;" class="status">{{ item.order.delivery_status }}</span>
-                        </span>
+
                     </div>
                 </div>
             </li>
             {% endfor %}
         </ul>
-        {% else %}
-        <div class="no-orders">
-            <h3>No orders yet</h3>
-            <p>Please visit the <a href="{% url 'base' %}" class="btn btn-primary">Menu</a> to place an order.</p>
-        </div>
-        {% endif %}
+{% else %}
+    <div class="no-orders">
+        <h3>No pending orders found.</h3>
     </div>
 </div>
-
+{% endif %}
 {% endblock %}

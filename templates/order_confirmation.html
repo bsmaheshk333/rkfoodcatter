@@ -49,7 +49,6 @@
     </style>
 <div class="confirmation-container">
     <h2>Order Confirmation</h2>
-
     {% if order.payment_method == "cash" %}
         <p>Thank you for your order! Your order ID is <strong>{{ order.id }}</strong>.</p>
         <p>Payment Method: <strong>Cash</strong></p>
@@ -71,4 +70,5 @@
         <a href="{% url 'order_section' %}" class="btn btn-lg btn-secondary">Go to Orders</a>
     {% endif %}
 </div>
+
 {% endblock %}

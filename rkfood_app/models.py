@@ -129,7 +129,7 @@ class Order(models.Model):
     order_date = models.DateTimeField(auto_now_add=True)
     # order_qty = models.IntegerField()
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    payment_status = models.BooleanField(default=False)  #  todo
+    payment_status = models.BooleanField(default=False)
     order_status = models.CharField(max_length=20, choices=ORDER_STATUS)
     payment_method = models.CharField(max_length=20, choices=PAYMENT_METHODS)
     last_update_date = models.DateTimeField(auto_now=True)
