@@ -1,13 +1,12 @@
+{% extends "base.html" %}
 {% load static %}
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RK FoodStop - {{ item.name }}</title>
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="{% static 'css/item_detail_view.css' %}">
-    <style>
+
+{% block title %}
+    View Cart
+{% endblock %}
+
+{% block content %}
+<style>
         body {
             background-color: #f4f4f9;
             font-family: 'Arial', sans-serif;
@@ -130,83 +129,74 @@
             transition: 0.3s ease;
         }
     </style>
-</head>
-<body>
 
-    <div class="container">
-        <!-- Breadcrumb navigation -->
-        <nav class="breadcrumb">
-            <a href="{% url 'base' %}">Home</a> <span>/</span>
-            <a href="{% url 'detail_view' item.slug %}">{{ item.name }}</a>
-        </nav>
+<div class="container">
+    <!-- Breadcrumb navigation -->
+    <nav class="breadcrumb">
+        <a href="{% url 'base' %}">Home</a> <span>/</span>
+        <a href="{% url 'detail_view' item.slug %}">{{ item.name }}</a>
+    </nav>
 
-        <!-- Item Details Section -->
-        <div class="row menu-item">
-            <div class="col-md-6">
-                <img src="{{ item.image.url }}" alt="{{ item.name }}" class="img-fluid">
-            </div>
-            <div class="col-md-6">
-                <h3>{{ item.name }}</h3>
-                <p>{{ item.description }}</p>
-                <p><strong>Price: ₹{{ item.price }}</strong></p>
-
-                <p class="rating">
-                    {% for i in "12345" %}
-                        {% if forloop.counter <= item.rating %}
-                            <i class="fas fa-star"></i>
-                        {% else %}
-                            <i class="far fa-star"></i>
-                        {% endif %}
-                    {% endfor %}
-                </p>
-
-                <!-- Add to Cart Form -->
-                <form method="POST" action="{% url 'add_to_cart' item.id %}">
-                    {% csrf_token %}
-                    <div class="btn-group" role="group">
-                        <button type="submit" class="btn btn-success">Add to Cart</button>
-                        <a href="{% url 'cart_view' %}" class="btn btn-primary ml-2">Go to cart</a>
-                    </div>
-                </form>
-            </div>
+    <!-- Item Details Section -->
+    <div class="row menu-item">
+        <div class="col-md-6">
+            <img src="{{ item.image.url }}" alt="{{ item.name }}" class="img-fluid">
         </div>
+        <div class="col-md-6">
+            <h3>{{ item.name }}</h3>
+            <p>{{ item.description }}</p>
+            <p><strong>Price: ₹{{ item.price }}</strong></p>
 
-        <!-- Comment Section -->
-        <div class="comment-section mt-4">
-            <h5>Leave a Comment</h5>
-
-            {% if existing_comment %}
-            <p style="background-color: #ffe9e9; padding: 10px; border-radius: 6px;">
-                <strong>Note:</strong> You have already posted a comment.
-            </p>
-            {% else %}
-            <form method="POST" class="comment-form">
-                {% csrf_token %}
-                <textarea name="comment" rows="3" placeholder="Write your comment..." required></textarea>
-                <button type="submit" class="btn btn-primary mt-3">Submit Comment</button>
-            </form>
-            {% endif %}
-
-            <!-- Display existing comments -->
-            <h5 class="mt-4">Reviews ({{comment_count}})</h5>
-            <ul class="comment-list">
-                {% for cmt in comments %}
-                <li>
-                    <div class="username">{{ cmt.user.username }}</div>
-                    <div class="comment-date">{{ cmt.commented_on|date:"d M, Y H:i" }}</div>
-                    <div class="user-comment">{{ cmt.comment }}</div>
-                </li>
-                {% empty %}
-                <p>No comments yet. Be the first to comment!</p>
+            <p class="rating">
+                {% for i in "12345" %}
+                    {% if forloop.counter <= item.rating %}
+                        <i class="fas fa-star"></i>
+                    {% else %}
+                        <i class="far fa-star"></i>
+                    {% endif %}
                 {% endfor %}
-            </ul>
+            </p>
+
+            <!-- Add to Cart Form -->
+            <form method="POST" action="{% url 'add_to_cart' item.id %}">
+                {% csrf_token %}
+                <div class="btn-group" role="group">
+                    <button type="submit" class="btn btn-success">Add to Cart</button>
+                    <a href="{% url 'cart_view' %}" class="btn btn-primary ml-2">Go to cart</a>
+                </div>
+            </form>
         </div>
     </div>
 
-    <!-- JS, Popper.js, and jQuery -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <!-- Comment Section -->
+    <div class="comment-section mt-4">
+        <h5>Leave a Comment</h5>
 
-</body>
-</html>
+        {% if existing_comment %}
+        <p style="background-color: #ffe9e9; padding: 10px; border-radius: 6px;">
+            <strong>Note:</strong> You have already posted a comment.
+        </p>
+        {% else %}
+        <form method="POST" class="comment-form">
+            {% csrf_token %}
+            <textarea name="comment" rows="3" placeholder="Write your comment..." required></textarea>
+            <button type="submit" class="btn btn-primary mt-3">Submit Comment</button>
+        </form>
+        {% endif %}
+
+        <!-- Display existing comments -->
+        <h5 class="mt-4">Reviews ({{comment_count}})</h5>
+        <ul class="comment-list">
+            {% for cmt in comments %}
+            <li>
+                <div class="username">{{ cmt.user.username }}</div>
+                <div class="comment-date">{{ cmt.commented_on|date:"d M, Y H:i" }}</div>
+                <div class="user-comment">{{ cmt.comment }}</div>
+            </li>
+            {% empty %}
+            <p>No comments yet. Be the first to comment!</p>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}

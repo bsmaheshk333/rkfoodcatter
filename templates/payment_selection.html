@@ -1,16 +1,11 @@
+{% extends "base.html" %}
 {% load static %}
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shopping Cart - RK FoodStop</title>
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
-          crossorigin="anonymous">
-    <link rel="stylesheet" href="{% static 'css/cart.css' %}">
 
-    <style>
+{% block title %}
+{% endblock %}
+
+{% block content %}
+<style>
         body {
             background-color: #f8f9fa; /* Light gray background for contrast */
         }
@@ -46,41 +41,30 @@
             border-color: #1e7e34;
         }
     </style>
-</head>
-<body>
+<div class="container mt-5">
+    <div class="payment-container">
+        <form action="" method="POST">
+            {% csrf_token %}
+            <h4>Select Payment Method</h4>
 
-    <div class="container mt-5">
-        <div class="payment-container">
-            <form action="" method="POST">
-                {% csrf_token %}
-                <h4>Select Payment Method</h4>
+            <div class="custom-radio">
+                <input type="radio" name="payment_method" value="cash" id="cash" required>
+                <label for="cash">Cash</label>
+            </div>
 
-                <div class="custom-radio">
-                    <input type="radio" name="payment_method" value="cash" id="cash" required>
-                    <label for="cash">Cash</label>
-                </div>
+            <div class="custom-radio">
+                <input type="radio" name="payment_method" value="online" id="online" required>
+                <label for="online">Online Payment</label>
+            </div>
 
-                <div class="custom-radio">
-                    <input type="radio" name="payment_method" value="online" id="online" required>
-                    <label for="online">Online Payment</label>
-                </div>
+            <div class="custom-radio">
+                <input type="radio" name="payment_method" value="credit card" id="credit_card" required>
+                <label for="credit_card">Credit Card</label>
+            </div>
 
-                <div class="custom-radio">
-                    <input type="radio" name="payment_method" value="credit card" id="credit_card" required>
-                    <label for="credit_card">Credit Card</label>
-                </div>
-
-                <button type="submit" class="btn btn-primary mt-4">Proceed to Payment</button>
-            </form>
-        </div>
+            <button type="submit" class="btn btn-primary mt-4">Proceed to Payment</button>
+        </form>
     </div>
+</div>
 
-    <!-- Bootstrap JS and dependencies -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-            crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGaF2MxhhL18Uclh0QldPbHGxg"
-            crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
-            crossorigin="anonymous"></script>
-</body>
-</html>
+{% endblock %}

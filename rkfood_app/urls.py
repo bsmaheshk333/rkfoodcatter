@@ -1,8 +1,7 @@
 from django.urls import path
 from django.conf.urls.static import static
 from django.conf import settings
-from .views import fb_views
-from .views import api_views
+from .views import fb_views, api_views
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -10,7 +9,7 @@ from rest_framework_simplejwt.views import (
 
 urlpatterns = [
     path("", fb_views.home, name="base"),
-    # path('select_restaurant/', fb_views.select_restaurant, name="select_restaurant"),
+    path("menu_items/", fb_views.show_menu_items, name="menu_item"),
     path("search_item/", fb_views.search_menu_item, name="search_item"),
     path('profile/<int:id>/', fb_views.customer_profile, name="profile"),
     path('login/', fb_views.customer_login, name="login"),

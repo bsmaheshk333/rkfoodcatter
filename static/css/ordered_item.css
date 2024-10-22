@@ -1,138 +1,121 @@
- body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f5f7fa;
-            margin: 0;
-            padding: 20px;
-            color: #34495e;
-        }
 
-        .container {
-            max-width: 1000px;
-            margin: auto;
-            padding: 20px;
-        }
+    body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+}
 
-        .breadcrumb {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-            font-size: 0.9rem;
-        }
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
 
-        .breadcrumb a {
-            color: #2980b9;
-            text-decoration: none;
-            margin-right: 8px;
-            transition: color 0.3s ease;
-        }
+.breadcrumb {
+    background: none;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
 
-        .breadcrumb a:hover {
-            color: #16a085;
-        }
+.breadcrumb a {
+    color: #007bff;
+    text-decoration: none;
+}
 
-        .breadcrumb span {
-            margin-right: 8px;
-            color: #95a5a6;
-        }
+.breadcrumb span {
+    margin: 0 5px;
+    color: #666;
+}
 
-        .card {
-            background-color: #fff;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
-            margin-bottom: 20px;
-            padding: 20px;
-        }
+.card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
 
-        .card-heading {
-            font-size: 2rem;
-            color: #16a085;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #ecf0f1;
-            padding-bottom: 10px;
-        }
+.card-heading {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #333;
+    text-align: center;
+}
 
-        .order-list {
-            list-style-type: none;
-            padding: 0;
-        }
+.order-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
 
-        .order-item {
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 20px;
-            padding: 20px;
-            background-color: #f9f9f9;
-            border: 1px solid #ecf0f1;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            transition: all 0.3s ease;
-        }
+.order-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
 
-        .order-item:hover {
-            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
-            transform: translateY(-3px);
-        }
+.order-item:last-child {
+    border-bottom: none;
+}
 
-        .order-item img {
-            width: 100%;
-            height: auto;
-            border-radius: 8px;
-        }
+.item-img img {
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    margin-right: 20px;
+}
 
-        .order-details {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
+.order-details {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
 
-        .order-details span {
-            display: block;
-            margin: 8px 0;
-            font-size: 1.1rem;
-            color: #2c3e50;
-        }
+.order-details span {
+    margin-bottom: 5px;
+    font-size: 14px;
+}
 
-        .order-details strong {
-            color: #2980b9;
-        }
+.restaurant-name {
+    font-weight: 600;
+    color: #007bff;
+    font-size: 16px;
+    margin-bottom: 10px;
+}
 
-        .status-row {
-            margin-top: 10px;
-            font-weight: bold;
-            color: #16a085;
-        }
+.status-row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
 
-        .button-container {
-            margin-top: 20px;
-        }
+.status-row span {
+    font-size: 13px;
+}
 
-        .status {
-            background-color: #e67e22;
-            color: white;
-            padding: 8px 12px;
-            border-radius: 5px;
-            display: inline-block;
-        }
+.no-orders {
+    text-align: center;
+    padding: 20px;
+}
 
-        /* Responsive */
-        @media (max-width: 768px) {
-            .order-item {
-                grid-template-columns: 1fr;
-            }
+.no-orders h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
 
-            .container {
-                padding: 10px;
-            }
+.no-orders p {
+    font-size: 14px;
+}
 
-            .card {
-                padding: 15px;
-            }
+.btn {
+    padding: 8px 16px;
+    background-color: #007bff;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 14px;
+}
 
-            .card-heading {
-                font-size: 1.5rem;
-            }
-
-            .order-details span {
-                font-size: 1rem;
-            }
-        }
+.btn:hover {
+    background-color: #0056b3;
+}

@@ -10,31 +10,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/cart_view.css' %}">
+    <link rel="stylesheet" href="{% static 'css/search.css' %}">
 </head>
-<style>
-    .star-rating {
-    direction: rtl;
-    display: inline-flex;
-    font-size: 2rem;
-    justify-content: flex-start;
-}
-.star-rating input[type="radio"] {
-    display: none;
-}
-.star-rating label {
-    color: lightgray;
-    cursor: pointer;
-}
-.star-rating input[type="radio"]:checked ~ label {
-    color: gold;
-}
-.star-rating label:hover,
-.star-rating label:hover ~ label {
-    color: gold;
-}
 
-</style>
-<body>
+<body style="font-family: segoe UI">
 
 <nav class="navbar navbar-expand-lg navbar-light">
     <a class="navbar-brand" href="{% url 'base' %}">RKFoodCatter</a>
@@ -44,11 +24,7 @@
     <div class="collapse navbar-collapse" id="navbarNavDropdown">
         <ul class="navbar-nav ml-auto">
             <li class="nav-item">
-                    {% if request.user.is_staff %}
-                    <a class="nav-link" href="{% url 'admin:index' %}">Admin</a>
-                    {% else %}
-                    <a class="nav-link" href="{% url 'profile' request.user.id %}">{{request.user}}</a>
-                    {% endif %}
+                <a class="nav-link" href="{% url 'menu_item' %}">Menu</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="{% url 'order_section' %}">Orders</a>
@@ -65,7 +41,6 @@
                 <a class="nav-link logout-btn" href="{% url 'logout' %}">Logout</a>
             </li>
         </ul>
-
         <!-- Cart Icon -->
         <a href="{% url 'cart_view' %}" class="cart-icon">
             <i class="fas fa-shopping-cart"></i>
@@ -80,174 +55,10 @@
     </div>
 </nav>
 
-<div class="container form-container">
-        <div class="col-md-6 col-lg-4">
-            <form id="select-restaurant" method="post" action="{% url 'base' %}">
-                {% csrf_token %}
-                <div class="form-group">
-                    <label for="restaurant" class="form-label">Choose a Restaurant:</label>
-                    <select name="restaurant" id="restaurant" class="form-control" required>
-                        <option value="" disabled selected>Select a restaurant</option>
-                        {% for restaurant in restaurants %}
-                            <option value="{{ restaurant.name }}">{{ restaurant.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="form-group mt-3">
-                    <button type="submit" id="shown-menu" class="btn btn-outline-primary btn-block">Show Menu</button>
-                </div>
-            </form>
-        </div>
-    </div>
+{% block content %}
 
-<div id="scroll-btn" class="container mt-5 scroll-buttons">
-    <a href="#breakfast" class="btn btn-primary">Breakfast</a>
-    <a href="#lunch" class="btn btn-primary">Lunch</a>
-    <a href="#dinner" class="btn btn-primary">Dinner</a>
-    <a href="#beverages" class="btn btn-primary">Beverages</a>
-</div>
+{% endblock %}
 
-<!--Menu item section-->
-<div class="container" id="restaurant_selected">
-    <!-- Breakfast Section -->
-   <div id="menu-section" class="menu-section">
-        <h2>Breakfast Menu</h2>
-        <div class="row">
-            {% for item in menu_items %}
-            {% if item.menu.menu_title|lower == "breakfast" %}
-            <div class="col-sm-12 col-md-6 col-lg-4">
-                <div class="menu-item">
-                    <a href="{% url 'detail_view' item.slug %}">
-                        <img src="{{ item.image.url }}" alt="{{ item.name }}">
-                    </a>
-                    <h5>{{ item.name }}</h5>
-                    <p>{{ item.description }}</p>
-                    <p><strong>{{ item.price }} Rs.</strong></p>
-                    <form method="POST" action="{% url 'add_to_cart' item.id %}">
-                        {% csrf_token %}
-                        <button class="btn btn-primary btn-block" type="submit" name="add">Order</button>
-                    </form>
-                </div>
-            </div>
-            {% endif %}
-            {% empty %}
-                <a href="#select-restaurant">Please select the restaurant</a>
-            {% endfor %}
-        </div>
-    </div>
-    <hr style="color: red;">
-    <!-- Lunch Section -->
-    <div id="lunch" class="menu-section">
-        <h2>Lunch Menu</h2>
-        <div class="row">
-            {% for item in menu_items %}
-            {% if item.menu.menu_title|lower == "lunch" %}
-            <div class="col-sm-12 col-md-6 col-lg-4">
-                <div class="menu-item">
-                    <a href="{% url 'detail_view' item.slug %}">
-                        <img src="{{ item.image.url }}" alt="{{ item.name }}">
-                    </a>
-                    <h5>{{ item.name }}</h5>
-                    <p>{{ item.description }}</p>
-                    <p><strong>{{ item.price }} Rs.</strong></p>
-                    <form method="POST" action="{% url 'add_to_cart' item.id %}">
-                        {% csrf_token %}
-                        <button class="btn btn-primary btn-block" type="submit" name="add">Order</button>
-                    </form>
-                </div>
-            </div>
-            {% endif %}
-            {% empty %}
-                <a href="#select-restaurant">Please select the restaurant</a>
-            {% endfor %}
-        </div>
-    </div>
-    <hr style="color: red;">
-    <div id="dinner" class="menu-section">
-        <h2>Dinner Menu</h2>
-        <div class="row">
-            {% for item in menu_items %}
-            {% if item.menu.menu_title|lower == "dinner" %}
-            <div class="col-sm-12 col-md-6 col-lg-4">
-                <div class="menu-item">
-                    <a href="{% url 'detail_view' item.slug %}">
-                        <img src="{{ item.image.url }}" alt="{{ item.name }}">
-                    </a>
-                    <h5>{{ item.name }}</h5>
-                    <p>{{ item.description }}</p>
-                    <p><strong>{{ item.price }} Rs.</strong></p>
-                    <form method="POST" action="{% url 'add_to_cart' item.id %}">
-                        {% csrf_token %}
-                        <button class="btn btn-primary btn-block" type="submit" name="add">Order</button>
-                    </form>
-                </div>
-            </div>
-            {% endif %}
-            {% empty %}
-                <a href="#select-restaurant">Please select the restaurant</a>
-            {% endfor %}
-        </div>
-    </div>
-
-    <hr style="color: red;">
-    <!-- beverages -->
-    <div id="beverages" class="menu-section">
-        <h2>beverages Menu</h2>
-        <div class="row">
-            {% for item in menu_items %}
-            {% if item.menu.menu_title|lower == "beverages" %}
-            <div class="col-sm-12 col-md-6 col-lg-4">
-                <div class="menu-item">
-                    <a href="{% url 'detail_view' item.slug %}">
-                        <img src="{{ item.image.url }}" alt="{{ item.name }}">
-                    </a>
-                    <h5>{{ item.name }}</h5>
-                    <p>{{ item.description }}</p>
-                    <p><strong>{{ item.price }} Rs.</strong></p>
-                    <form method="POST" action="{% url 'add_to_cart' item.id %}">
-                        {% csrf_token %}
-                        <button class="btn btn-primary btn-block" type="submit" name="add">Order</button>
-                    </form>
-                </div>
-            </div>
-            {% endif %}
-            {% empty %}
-                <a href="#select-restaurant">Please select the restaurant</a>
-            {% endfor %}
-        </div>
-    </div>
-</div>
-
-<!--feedback form-->
-<div class="container mt-5">
-    <h2 style="color: green;">We Value Your Feedback!</h2>
-    <p style="color: grey">Please let us know how we can improve your experience.</p>
-    <form action="{% url 'feedback' %}" method="POST">
-        {% csrf_token %}
-        <!-- Rating -->
-        <div class="form-group">
-            <label for="rating">Rate Us</label>
-            <div class="star-rating">
-                <input type="radio" id="star5" name="rating" value="5" required/>
-                <label for="star5" title="5 stars">&#9733;</label>
-                <input type="radio" id="star4" name="rating" value="4" required/>
-                <label for="star4" title="4 stars">&#9733;</label>
-                <input type="radio" id="star3" name="rating" value="3" required/>
-                <label for="star3" title="3 stars">&#9733;</label>
-                <input type="radio" id="star2" name="rating" value="2" required/>
-                <label for="star2" title="2 stars">&#9733;</label>
-                <input type="radio" id="star1" name="rating" value="1" required/>
-                <label for="star1" title="1 star">&#9733;</label>
-            </div>
-        </div>
-        <div class="form-group">
-            <label for="message">Your Feedback</label>
-            <textarea class="form-control" placeholder="please write your comment here..."
-                      id="message" name="message" rows="4" required></textarea>
-        </div>
-        <button type="submit" class="btn btn-primary">Send Feedback</button>
-    </form>
-</div>
 
 <!-- Footer -->
 <footer class="footer bg-dark mt-5 p-3">
@@ -256,33 +67,6 @@
     </div>
 </footer>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script>
-    $(document).ready(function() {
-        $('#show-menu').click(function() {
-            var restaurantName = $('#restaurant').val();  // Get the selected restaurant
-            if (!restaurantName) {
-                alert('Please select a restaurant');
-                return;
-            }
-
-            $.ajax({
-                url: "{% url 'base' %}",
-                type: "POST",
-                data: {
-                    'restaurant': restaurantName,
-                    'csrfmiddlewaretoken': '{{ csrf_token }}'
-                },
-                success: function(response) {
-                    // Update the menu section with the response data
-                    $('#menu-section').html(response.menu_html);
-                },
-                error: function() {
-                    alert('An error occurred while fetching the menu.');
-                }
-            });
-        });
-    });
-</script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" crossorigin="anonymous"></script>

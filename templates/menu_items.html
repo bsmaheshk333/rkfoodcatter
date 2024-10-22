@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Menu Items
+{% endblock %}
+
+{% block content %}
+<style>
+    .star-rating {
+    direction: rtl;
+    display: inline-flex;
+    font-size: 2rem;
+    justify-content: flex-start;
+}
+.star-rating input[type="radio"] {
+    display: none;
+}
+.star-rating label {
+    color: lightgray;
+    cursor: pointer;
+}
+.star-rating input[type="radio"]:checked ~ label {
+    color: gold;
+}
+.star-rating label:hover,
+.star-rating label:hover ~ label {
+    color: gold;
+}
+#rest-form {
+padding-top: 20px;
+display: flex;
+justify-content: center;
+justify-text: center;
+}
+.nav-link:hover {
+    background: #007ec2;
+    border-radius: 50px;
+    color: yellow;
+}
+
+</style>
+<div class="container form-container" id="rest-form">
+        <div class="col-md-6 col-lg-4">
+            <form id="select-restaurant" method="post" action="{% url 'menu_item' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="restaurant" class="form-label">Choose a Restaurant:</label>
+                    <select name="restaurant" id="restaurant" class="form-control" required>
+                        <option value="" disabled selected>Select a restaurant</option>
+                        {% for restaurant in restaurants %}
+                            <option value="{{ restaurant.name }}">{{ restaurant.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group mt-3">
+                    <button type="submit" id="shown-menu" class="btn btn-outline-primary btn-block">Show Menu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+<section>
+<span style="display: flex; justify-content: center; justify-text: center; color:#737373; font-family: cursive;">
+        Restaurant Selected:
+    <b>
+    <strong style="display: flex; justify-content: center; justify-text: center; color: #fc03a1;"> {{get_restaurant}}</strong>
+    </b>
+</span>
+</section>
+
+<div id="scroll-btn" class="container mt-5 scroll-buttons">
+    <a href="#breakfast" class="btn btn-outline-primary">Breakfast</a>
+    <a href="#lunch" class="btn btn-outline-primary">Lunch</a>
+    <a href="#dinner" class="btn btn-outline-primary">Dinner</a>
+    <a href="#beverages" class="btn btn-outline-primary">Beverages</a>
+</div>
+
+<div class="container" id="restaurant_selected">
+    <!-- Breakfast Section -->
+   <div id="menu-section" class="menu-section">
+        <h2>Breakfast Menu</h2>
+        <div class="row">
+            {% for item in menu_items %}
+            {% if item.menu.menu_title|lower == "breakfast" %}
+            <div class="col-sm-12 col-md-6 col-lg-4">
+                <div class="menu-item">
+                    <a href="{% url 'detail_view' item.slug %}">
+                        <img src="{{ item.image.url }}" alt="{{ item.name }}">
+                    </a>
+                    <h5>{{ item.name }}</h5>
+                    <p>{{ item.description }}</p>
+                    <p><strong>{{ item.price }} Rs.</strong></p>
+                    <form method="POST" action="{% url 'add_to_cart' item.id %}">
+                        {% csrf_token %}
+                        <button class="btn btn-primary btn-block" type="submit" name="add">Order</button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+            {% empty %}
+                <a href="#select-restaurant">Please select the restaurant</a>
+            {% endfor %}
+        </div>
+    </div>
+    <hr style="color: red;">
+    <!-- Lunch Section -->
+    <div id="lunch" class="menu-section">
+        <h2>Lunch Menu</h2>
+        <div class="row">
+            {% for item in menu_items %}
+            {% if item.menu.menu_title|lower == "lunch" %}
+            <div class="col-sm-12 col-md-6 col-lg-4">
+                <div class="menu-item">
+                    <a href="{% url 'detail_view' item.slug %}">
+                        <img src="{{ item.image.url }}" alt="{{ item.name }}">
+                    </a>
+                    <h5>{{ item.name }}</h5>
+                    <p>{{ item.description }}</p>
+                    <p><strong>{{ item.price }} Rs.</strong></p>
+                    <form method="POST" action="{% url 'add_to_cart' item.id %}">
+                        {% csrf_token %}
+                        <button class="btn btn-primary btn-block" type="submit" name="add">Order</button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+            {% empty %}
+                <a href="#select-restaurant">Please select the restaurant</a>
+            {% endfor %}
+        </div>
+    </div>
+    <hr style="color: red;">
+    <div id="dinner" class="menu-section">
+        <h2>Dinner Menu</h2>
+        <div class="row">
+            {% for item in menu_items %}
+            {% if item.menu.menu_title|lower == "dinner" %}
+            <div class="col-sm-12 col-md-6 col-lg-4">
+                <div class="menu-item">
+                    <a href="{% url 'detail_view' item.slug %}">
+                        <img src="{{ item.image.url }}" alt="{{ item.name }}">
+                    </a>
+                    <h5>{{ item.name }}</h5>
+                    <p>{{ item.description }}</p>
+                    <p><strong>{{ item.price }} Rs.</strong></p>
+                    <form method="POST" action="{% url 'add_to_cart' item.id %}">
+                        {% csrf_token %}
+                        <button class="btn btn-primary btn-block" type="submit" name="add">Order</button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+            {% empty %}
+                <a href="#select-restaurant">Please select the restaurant</a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <hr style="color: red;">
+    <!-- beverages -->
+    <div id="beverages" class="menu-section">
+        <h2>beverages Menu</h2>
+        <div class="row">
+            {% for item in menu_items %}
+            {% if item.menu.menu_title|lower == "beverages" %}
+            <div class="col-sm-12 col-md-6 col-lg-4">
+                <div class="menu-item">
+                    <a href="{% url 'detail_view' item.slug %}">
+                        <img src="{{ item.image.url }}" alt="{{ item.name }}">
+                    </a>
+                    <h5>{{ item.name }}</h5>
+                    <p>{{ item.description }}</p>
+                    <p><strong>{{ item.price }} Rs.</strong></p>
+                    <form method="POST" action="{% url 'add_to_cart' item.id %}">
+                        {% csrf_token %}
+                        <button class="btn btn-primary btn-block" type="submit" name="add">Order</button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+            {% empty %}
+                <a href="#select-restaurant">Please select the restaurant</a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!--feedback form-->
+<div class="container mt-5">
+    <h2 style="color: green;">We Value Your Feedback!</h2>
+    <p style="color: grey">Please let us know how we can improve your experience.</p>
+    <form action="{% url 'feedback' %}" method="POST">
+        {% csrf_token %}
+        <!-- Rating -->
+        <div class="form-group">
+            <label for="rating">Rate Us</label>
+            <div class="star-rating">
+                <input type="radio" id="star5" name="rating" value="5" required/>
+                <label for="star5" title="5 stars">&#9733;</label>
+                <input type="radio" id="star4" name="rating" value="4" required/>
+                <label for="star4" title="4 stars">&#9733;</label>
+                <input type="radio" id="star3" name="rating" value="3" required/>
+                <label for="star3" title="3 stars">&#9733;</label>
+                <input type="radio" id="star2" name="rating" value="2" required/>
+                <label for="star2" title="2 stars">&#9733;</label>
+                <input type="radio" id="star1" name="rating" value="1" required/>
+                <label for="star1" title="1 star">&#9733;</label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="message">Your Feedback</label>
+            <textarea class="form-control" placeholder="please write your comment here..."
+                      id="message" name="message" rows="4" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Send Feedback</button>
+    </form>
+</div>
+
+{% endblock %}
+

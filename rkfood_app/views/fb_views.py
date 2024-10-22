@@ -21,30 +21,51 @@ from django.conf import settings
 from django.http import HttpResponse
 from django.db import transaction, IntegrityError
 
-@login_required(login_url="login/")
+
+
 def home(request):
+    try:
+        context = {}
+        user = request.user
+        no_of_cart_item = 0
+        cart, created = Cart.objects.get_or_create(customer=user)
+        if cart.cart_items.exists():  # if cart is not empty
+            no_of_cart_item = cart.get_total_number()  # get the total qty in the cart
+            context['no_of_cart_item'] = no_of_cart_item
+            print(f"{no_of_cart_item = }")
+        context['no_of_cart_item'] = no_of_cart_item
+        return render(request, "base.html", context)
+    except TemplateDoesNotExist:
+        return JsonResponse({'error': 'page not found'}, status=404)
+
+
+@login_required(login_url="login/")
+def show_menu_items(request):
     restaurants = Restaurant.objects.all()
     menu_items = []
-    no_of_cart_item = 0
+    get_restaurant = request.POST.get('restaurant', None)
     if request.method == "POST":
-        get_restaurant = request.POST.get('restaurant', None)
         if get_restaurant:
             try:
                 selected_restaurant = Restaurant.objects.get(name=get_restaurant)
                 # menu__restaurant -- Menu has a foreign key to Restaurant, so we can filter this way
                 menu_items = MenuItems.objects.filter(menu__restaurant=selected_restaurant)
             except Restaurant.DoesNotExist:
-                return render(request, "base.html",
-                              {'error': "Restaurant not found", 'menu_items': [], 'restaurants': restaurants})
-    cart, created = Cart.objects.get_or_create(customer=request.user)
-    if cart.cart_items.exists():  # if cart is not empty
-        no_of_cart_item = cart.get_total_number()  # get the total qty in the cart
+                return render(request, "menu_items.html",
+                              {'error': "Restaurant not found", 'menu_items': [],
+                               'restaurants': restaurants, 'get_restaurant': get_restaurant})
+        else:
+            return JsonResponse({'error': 'cannot proceed the request.'}, status=400)
+
+    # cart, created = Cart.objects.get_or_create(customer=request.user)
+    # if cart.cart_items.exists():  # if cart is not empty
+    #     no_of_cart_item = cart.get_total_number()  # get the total qty in the cart
     context = {
         'menu_items': menu_items,
-        'no_of_cart_item': no_of_cart_item,
-        'restaurants': restaurants
-    }
-    return render(request, "base.html", context)
+        # 'no_of_cart_item': no_of_cart_item,
+        'restaurants': restaurants,
+        'get_restaurant': get_restaurant}
+    return render(request, "menu_items.html", context)
 
 
 @login_required(login_url="login/")
@@ -117,7 +138,7 @@ def customer_login(request):
                 with open("user_logged_data.txt", mode="a") as log_file:
                     print(f"{log_file = }")
                     log_file.write(f"user: {request.user}")
-                return redirect('/')
+                return redirect('base')
             else:
                 response = HttpResponse().status_code
                 errors['status_code'] = response
@@ -297,7 +318,7 @@ def customer_logout(request):
         logout(request)
         with open("user_logged_data.txt", mode="a") as log_file:
             print(f"{log_file = }")
-        return redirect("base")
+        return redirect("login")
     except:
         return render(request, "error_page.html")
 
@@ -406,6 +427,8 @@ def checkout(request):
                                          unit_price = cart_item.item.price,
                                          subtotal=cart_item.item.price * cart_item.quantity
                                          )
+            # FIXME -> if the payment is failed or pending, canceled, cart should not be deleted
+            # FIXME -> only successful order should make cart empty.
             cart.cart_items.all().delete()
             return redirect('payment_selection', order_id=order.id)
         # else if cart does not exist
@@ -460,6 +483,7 @@ def order_confirmation(request, order_id):
 
 @login_required(login_url="login/")
 def update_delivery_status(request):
+    user = request.user # current logged in user
     ordered_items = OrderItem.objects.select_related('order').all()  # Fetch related orders efficiently
     # get the DELIVERY_STATUS from model
     DELIVERY_STATUS = Order._meta.get_field('delivery_status').choices
@@ -469,6 +493,14 @@ def update_delivery_status(request):
         if delivery_status in dict(DELIVERY_STATUS):  # Validate if the status is in the choices
             order = Order.objects.get(id=order_id)
             order.delivery_status = delivery_status  # Update the delivery status
+            # send order confirmation mail to user
+            send_mail(
+                subject="Update on Your Order Status",
+                message=f'Your current order Status: {order.delivery_status}\n'
+                        f'Regards, RKFoodCatter. \nHappy Eating...',
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[user.email],
+            )
             order.save()  # Save to the DB
             return redirect("update_delivery_status")
     return render(request, 'customer_ordered_delivery_status.html',

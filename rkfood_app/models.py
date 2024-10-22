@@ -117,7 +117,7 @@ PAYMENT_METHODS = [
 ]
 
 DELIVERY_STATUS = [
-    ('received', 'received'),
+    ('confirmed', 'confirmed'),
     ('ready', 'ready'),
     ('delivered', 'delivered')
 ]
