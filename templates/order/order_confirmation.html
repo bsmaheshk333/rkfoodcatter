@@ -53,7 +53,7 @@
         <p>Thank you for your order! Your order ID is <strong>{{ order.id }}</strong>.</p>
         <p>Payment Method: <strong>Cash</strong></p>
         <p>Total Amount: <strong>{{ order.total_amount }} Rs.</strong></p>
-        <a href="{% url 'order_section' %}" class="btn btn-lg btn-secondary">Go to Orders</a>
+        <a href="{% url 'recent_order' %}" class="btn btn-lg btn-secondary">Go to Orders</a>
     {% endif %}
 
     {% if order.payment_method == "online" %}
@@ -67,7 +67,7 @@
         <div class="alert alert-danger">
             <p><strong>Credit card payments are not accepted yet.</strong></p>
         </div>
-        <a href="{% url 'order_section' %}" class="btn btn-lg btn-secondary">Go to Orders</a>
+        <a href="{% url 'recent_order' %}" class="btn btn-lg btn-secondary">Go to Orders</a>
     {% endif %}
 </div>
 

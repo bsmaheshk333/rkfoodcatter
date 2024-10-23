@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+
+{% block title %}
+My Orders
+{% endblock %}
+
+{% block content %}
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+        background-color: #f9f9f9;
+        color: #333;
+    }
+
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .breadcrumb {
+        background: none;
+        font-size: 14px;
+        margin-bottom: 20px;
+    }
+
+    .breadcrumb a {
+        color: #007bff;
+        text-decoration: none;
+    }
+
+    .breadcrumb span {
+        margin: 0 5px;
+        color: #666;
+    }
+
+    .card {
+        background: #fff;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        position: relative;
+         margin-bottom: 40px; /* Add margin to separate from the next content */
+        padding-bottom: 60px;
+    }
+
+    .card-heading {
+        font-size: 24px;
+        margin-bottom: 20px;
+        color: #333;
+        text-align: left;
+        color: red;
+        text-decoration: underline;
+    }
+
+    .order-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .order-item {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+        position: relative;
+    }
+
+    .order-item:last-child {
+        border-bottom: none;
+    }
+
+    .item-img img {
+        width: 80px;
+        height: 80px;
+        border-radius: 8px;
+        margin-right: 20px;
+    }
+
+    .order-details {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .order-details span {
+        margin-bottom: 5px;
+        font-size: 14px;
+    }
+
+    .restaurant-name {
+        font-weight: 600;
+        color: #007bff;
+        font-size: 16px;
+        margin-bottom: 10px;
+    }
+    .payment-status {
+        position: absolute;
+        top: 50%;
+        right: 20px;
+        transform: translateY(-50%);
+        background-color: #1ba82e;
+        color: #fff;
+        font-weight: 600;
+        border-radius: 20px;
+        padding: 10px 20px;
+        font-size: 14px;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .payment-status.failed {
+        background-color: #ff4d4d;
+    }
+
+    /* Delivery status stepper */
+    .delivery-status {
+        margin-top: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 10px;
+        position: relative;
+        margin-bottom: 10px;
+        left: 20px;
+        right: 20px;
+        margin-top: auto;
+    }
+
+    .step {
+        position: relative;
+        flex-grow: 1;
+        text-align: center;
+    }
+
+    .step::before {
+        content: '';
+        width: 100%;
+        height: 2px;
+        background-color: #ddd;
+        position: absolute;
+        top: 50%;
+        left: -50%;
+        z-index: 0;
+    }
+
+    .step:first-child::before {
+        display: none;
+    }
+
+    .step-dot {
+        width: 20px;
+        height: 20px;
+        background-color: #ddd;
+        border-radius: 50%;
+        position: relative;
+        z-index: 1;
+        margin: 0 auto;
+    }
+
+    .step.active .step-dot {
+        background-color: #1ba82e;
+    }
+
+    .step-label {
+        margin-top: 8px;
+        font-size: 12px;
+        color: #666;
+    }
+
+    .step.active .step-label {
+        color: #1ba82e;
+    }
+
+</style>
+
+<div class="container">
+    <nav class="breadcrumb">
+        <a href="{% url 'base' %}">Home</a>
+        <span>>></span>
+        <span>My Orders</span>
+    </nav>
+    <div class="card">
+        <h2 class="card-heading">Orders history</h2>
+        <div style="display:flex;justify-text: right; justify-content: right; margin-right:10px;">
+             &#x1F449;  <a style="color: black;" href="{% url 'recent_order' %}">go to recent orders</a>
+        </div>
+        <div style="display:flex;justify-text: right; justify-content: right; margin-right:10px;">
+           &#x1F449;  <a style="color: black;" href="{% url 'pending_orders' %}">see all pending/failed orders</a>
+        </div>
+        {% if ordered_item %}
+        <ul class="order-list">
+            {% for item in ordered_item %}
+            <li class="order-item">
+                <!-- Image of food item -->
+                <div class="item-img">
+                    <img src="{{ item.menu_item.image.url }}" alt="{{ item.menu_item.name }}">
+                </div>
+                <!-- Order Details -->
+                <div class="order-details">
+                    <span class="restaurant-name"><strong>Restaurant Name: </strong>{{ item.menu_item.menu.restaurant.name }}</span>
+                    <span><strong>Order ID:</strong> {{ item.order.id }}</span>
+                    <span>
+                        <strong>Order Status:</strong>
+                        <a href="" class="btn btn-sm btn-primary">{{ item.order.order_status }}</a>
+                    </span>
+                    <span><strong>Item:</strong> {{ item.menu_item.name }}</span>
+                    <span><strong>Total Amount:</strong> ₹{{ item.subtotal }}</span>
+                    <span><strong>Ordered On:</strong> {{ item.order.order_date }}</span>
+                    <span><strong>Quantity:</strong> {{ item.quantity }}</span>
+                    <span><strong>Unit Price:</strong> ₹{{ item.unit_price }}</span>
+
+                </div>
+
+                <!-- Payment Status styled as a gift card -->
+                <div class="payment-status {% if item.order.payment_status == 'FAILED' %}failed{% endif %}">
+                    {{ item.order.payment_status|yesno:"PAID,UNPAID" }}
+                </div>
+
+                <!-- Delivery Status Stepper -->
+                <div class="delivery-status">
+                    <div class="step {% if item.order.delivery_status == 'placed' %}active{% endif %}">
+                        <div class="step-dot"></div>
+                        <div class="step-label"><strong>Placed</strong></div>
+                    </div>
+                    <div class="step {% if item.order.delivery_status == 'confirmed' %}active{% endif %}">
+                        <div class="step-dot"></div>
+                        <div class="step-label"><strong>Confirmed</strong></div>
+                    </div>
+                    <div class="step {% if item.order.delivery_status == 'ready' %}active{% endif %}">
+                        <div class="step-dot"></div>
+                        <div class="step-label"><strong>Ready</strong></div>
+                    </div>
+                    <div class="step {% if item.order.delivery_status == 'delivered' %}active{% endif %}">
+                        <div class="step-dot"></div>
+                        <div class="step-label"><strong>Delivered</strong></div>
+                    </div>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <div class="no-orders">
+            <h3>No orders yet</h3>
+            <p>Please visit the <a href="{% url 'base' %}" class="btn btn-primary">Menu</a> to place an order.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

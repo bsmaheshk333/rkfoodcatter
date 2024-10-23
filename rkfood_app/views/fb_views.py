@@ -1,3 +1,5 @@
+import itertools
+
 from django.shortcuts import (render, redirect,get_object_or_404)
 from rkfood_app.models import (Restaurant,Menu,MenuItems,
                                Customer,Order, UserLoginOtp,
@@ -419,27 +421,27 @@ def update_cart(request, slug):
 
 @login_required(login_url="login/")
 def checkout(request):
-    # try:
-    cart = Cart.objects.get(customer=request.user)
-    customer = Customer.objects.get(user=request.user)
-    if cart.cart_items.exists():
-        # create the order if cart is not empty
-        order = Order.objects.create(customer= customer,
-                                     total_amount = cart.get_cart_total(),
-                                     payment_status=False, order_status="pending")
-        # move cart items to order section
-        for cart_item in cart.cart_items.all():
-            OrderItem.objects.create(order=order, menu_item=cart_item.item,
-                                     quantity = cart_item.quantity,
-                                     unit_price = cart_item.item.price,
-                                     subtotal=cart_item.item.price * cart_item.quantity
-                                     )
-        cart.cart_items.all().delete()
-        return redirect('payment_selection', order_id=order.id)
-    else:
-        return redirect('cart_view')
-    # except Exception as ex:
-    #     return HttpResponse("customer profile does not exist.")
+    try:
+        cart = Cart.objects.get(customer=request.user)
+        customer = Customer.objects.get(user=request.user)
+        if cart.cart_items.exists():
+            # create the order if cart is not empty
+            order = Order.objects.create(customer= customer,
+                                         total_amount = cart.get_cart_total(),
+                                         payment_status=False, order_status="pending")
+            # move cart items to order section
+            for cart_item in cart.cart_items.all():
+                OrderItem.objects.create(order=order, menu_item=cart_item.item,
+                                         quantity = cart_item.quantity,
+                                         unit_price = cart_item.item.price,
+                                         subtotal=cart_item.item.price * cart_item.quantity
+                                         )
+            cart.cart_items.all().delete()
+            return redirect('payment_selection', order_id=order.id)
+        else:
+            return redirect('cart_view')
+    except Exception as ex:
+        return HttpResponse(f"{ex}")
         # return render(request, "error_page.html", {'error': ex})
 
 
@@ -454,7 +456,7 @@ def payment_selection(request, order_id):
             order.payment_method = payment_method.lower()
             if payment_method == 'cash' and order.payment_status is False:
                 order.payment_status = True
-                order.delivery_status = "Received"
+                order.delivery_status = "Placed"
                 order.order_status = "Completed"
                 order.save()
             elif payment_method == ['online',  'credit card']:
@@ -475,6 +477,7 @@ def payment_selection(request, order_id):
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[user.email],
         )
+        # FIXME currently not saving the order other than cash
         # order.save()
         return redirect('order_confirmation', order_id=order.id)
 
@@ -486,14 +489,14 @@ def order_confirmation(request, order_id):
     try:
         order = get_object_or_404(Order, id=order_id)
         context = {'order': order}
-        return render(request, 'order_confirmation.html', context)
+        return render(request, 'order/order_confirmation.html', context)
     except Order.DoesNotExist as ex:
         return render(request, "error_page.html", context={'error': ex})
 
 
 @login_required(login_url="login/")
-def update_delivery_status(request):
-    user = request.user # current logged in user
+def manage_delivery_status(request):
+    user = request.user
     ordered_items = OrderItem.objects.select_related('order').all()
     DELIVERY_STATUS = Order._meta.get_field('delivery_status').choices
     if request.method == 'POST':
@@ -517,7 +520,27 @@ def update_delivery_status(request):
 
 
 @login_required(login_url="login/")
-def order_section(request):
+def show_recent_order(request):
+    customer = Customer.objects.get(user=request.user)
+    # show only success payments
+    recent_order = Order.objects.filter(customer=customer, payment_status=True,
+                                 order_status="Completed").order_by('-last_update_date').first()
+    if recent_order:
+        recent_order_item = OrderItem.objects.filter(order=recent_order)
+        print(f"{recent_order_item = }")
+        context = {
+            'recent_order_item': recent_order_item,
+        }
+        return render(request, 'order/recent_order.html', context)
+    else:
+        context = {"no_orders": 'no order found'}
+        return JsonResponse(context, status=400)
+        # return render(request, 'order/order_history.html', context)
+
+
+
+@login_required(login_url="login/")
+def show_order_history(request):
     customer = Customer.objects.get(user=request.user)
     # show only success payments
     order = Order.objects.filter(customer=customer, payment_status=True, order_status="Completed")
@@ -526,10 +549,11 @@ def order_section(request):
         context = {
             'ordered_item': ordered_items,
         }
-        return render(request, 'ordered_item.html', context)
+        return render(request, 'order/order_history.html', context)
     else:
         context = {"no_orders": 'no order found'}
-        return render(request, 'ordered_item.html', context)
+        return render(request, 'order/order_history.html', context)
+
 
 @login_required(login_url="login/")
 def show_pending_orders(request):
@@ -541,9 +565,9 @@ def show_pending_orders(request):
         context = {
             'pending_ordered_item': pending_ordered_item
         }
-        return render(request, 'pending_orders.html', context)
+        return render(request, 'order/pending_orders.html', context)
     else:
-        return JsonResponse({'error': 'pending orders doesnt exist'}, status=400)
+        return JsonResponse({'error': 'pending order doesnt exist'}, status=400)
 
 
 def customer_feedback(request):

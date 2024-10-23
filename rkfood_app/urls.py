@@ -22,15 +22,16 @@ urlpatterns = [
     path("checkout/", fb_views.checkout, name="checkout"),
     path('payment_selection/<int:order_id>/', fb_views.payment_selection, name="payment_selection"),
     path('order_confirmation/<int:order_id>/', fb_views.order_confirmation, name="order_confirmation"),
-    path("delivery_status/<int:id>/", fb_views.update_delivery_status, name="delivery_status"),
+    path("delivery_status/<int:id>/", fb_views.manage_delivery_status, name="delivery_status"),
     # path('profile/order_section/<int:id>/', fb_views.order_section, name="order_section"),
-    path('order_section/', fb_views.order_section, name="order_section"),
+    path('recent_order/', fb_views.show_recent_order, name="recent_order"),
+    path('order_history/', fb_views.show_order_history, name="order_history"),
     path('pending_orders/', fb_views.show_pending_orders, name="pending_orders"),
     path('feedback/', fb_views.customer_feedback, name="feedback"),
     path('view_feedback/', fb_views.view_feedback, name="view_feedback"),
 
     # url of admin to monitor ordered food to deliver
-    path('update_delivery_status/', fb_views.update_delivery_status, name="update_delivery_status"),
+    path('update_delivery_status/', fb_views.manage_delivery_status, name="update_delivery_status"),
 
     # API endpoints
     path('login_api/', api_views.LoginApiView.as_view(), name="login_api"),

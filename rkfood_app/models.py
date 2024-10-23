@@ -24,7 +24,7 @@ Relationship:
 -> 'Menu' can have multiple of Items i.e Menu Items, but each Menu items can be associated
    with only one Menu.
 -> Customer can have multiple bookings, but each booking associated with only one Customer
--> Customer can have multiple orders, but each order ties with only one Customer.
+-> Customer can have multiple order, but each order ties with only one Customer.
 -> Orders & payment can be 1-1 relationship. meaning that, there will be only one record
    booking against each payment.
 """
@@ -117,6 +117,7 @@ PAYMENT_METHODS = [
 ]
 
 DELIVERY_STATUS = [
+    ('placed', 'placed'),
     ('confirmed', 'confirmed'),
     ('ready', 'ready'),
     ('delivered', 'delivered')
