@@ -51,7 +51,6 @@ My Orders
         text-align: left;
         color: red;
         text-decoration: underline;
-
     }
 
     .order-list {
@@ -101,7 +100,7 @@ My Orders
         top: 50%;
         right: 20px;
         transform: translateY(-50%);
-        background-color: #f70202;
+        background-color: #1ba82e;
         color: #fff;
         font-weight: 600;
         border-radius: 20px;
@@ -112,7 +111,7 @@ My Orders
     }
 
     .payment-status.failed {
-        background-color: #f70202;
+        background-color: #ff4d4d;
     }
 
     /* Delivery status stepper */
@@ -177,20 +176,25 @@ My Orders
 </style>
 
 <div class="container">
-    <!-- Breadcrumb navigation -->
     <nav class="breadcrumb">
         <a href="{% url 'base' %}">Home</a>
         <span>>></span>
         <span>My Orders</span>
     </nav>
-    <div class="card">
-        <h2 class="card-heading">Pending/Failed orders</h2>
-        <div style="display:flex;justify-text: right; justify-content: right; margin-right:10px;">
-            &#x1F449; <a href="{% url 'order_history' %}">see all order history</a>
+        <div class="card">
+            <div class="mb-3">
+                <a href="{% url 'orders' %}?status=recent&status=completed&status=failed&status=pending" class="btn btn-outline-primary">All</a>
+                {% for status in ORDER_STATUS %}
+                    <a href="{% url 'orders' %}?status={{ status.0 }}" class="btn btn-outline-primary">
+                        {{ status.1 }}
+                    </a>
+                {% endfor %}
+            </div>
         </div>
-        {% if pending_ordered_item %}
+
+        {% if orders %}
         <ul class="order-list">
-            {% for item in pending_ordered_item %}
+            {% for item in orders %}
             <li class="order-item">
                 <!-- Image of food item -->
                 <div class="item-img">
@@ -209,9 +213,6 @@ My Orders
                     <span><strong>Ordered On:</strong> {{ item.order.order_date }}</span>
                     <span><strong>Quantity:</strong> {{ item.quantity }}</span>
                     <span><strong>Unit Price:</strong> ₹{{ item.unit_price }}</span>
-                    <span>
-                        <a href="">Retry</a>
-                    </span>
                 </div>
 
                 <!-- Payment Status styled as a gift card -->
@@ -223,29 +224,24 @@ My Orders
                 <div class="delivery-status">
                     <div class="step {% if item.order.delivery_status == 'placed' %}active{% endif %}">
                         <div class="step-dot"></div>
-                        <div class="step-label">Placed</div>
+                        <div class="step-label"><strong>Placed</strong></div>
                     </div>
                     <div class="step {% if item.order.delivery_status == 'confirmed' %}active{% endif %}">
                         <div class="step-dot"></div>
-                        <div class="step-label">Confirmed</div>
+                        <div class="step-label"><strong>Confirmed</strong></div>
                     </div>
                     <div class="step {% if item.order.delivery_status == 'ready' %}active{% endif %}">
                         <div class="step-dot"></div>
-                        <div class="step-label">Ready</div>
+                        <div class="step-label"><strong>Ready</strong></div>
                     </div>
                     <div class="step {% if item.order.delivery_status == 'delivered' %}active{% endif %}">
                         <div class="step-dot"></div>
-                        <div class="step-label">Delivered</div>
+                        <div class="step-label"><strong>Delivered</strong></div>
                     </div>
                 </div>
             </li>
             {% endfor %}
         </ul>
-        {% else %}
-        <div class="no-orders">
-            <h3>No Pending orders yet.</h3>
-            <a href="{% url 'menu_item' %}" class="btn btn-primary">Menu</a> to place an order.</p>
-        </div>
         {% endif %}
     </div>
 </div>

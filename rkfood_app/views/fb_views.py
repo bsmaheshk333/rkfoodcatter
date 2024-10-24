@@ -453,9 +453,9 @@ def payment_selection(request, order_id):
             order.payment_method = payment_method.lower()
             if payment_method == 'cash' and order.payment_status is False:
                 order.payment_status = True
-                order.delivery_status = "Placed"
-                order.order_status = "Completed"
-                order.save()
+                order.delivery_status = "placed"
+                order.order_status = "completed"
+                # order.save()
             elif payment_method == ['online',  'credit card']:
                 # temporarily setting it to false due to unavailability
                 order.payment_status = False
@@ -475,7 +475,7 @@ def payment_selection(request, order_id):
             recipient_list=[user.email],
         )
         # FIXME currently not saving the order other than cash
-        # order.save()
+        order.save()
         return redirect('order_confirmation', order_id=order.id)
 
     return render(request, 'payment_selection.html', {'order': order})
@@ -523,54 +523,42 @@ def manage_delivery_status(request):
 
 
 @login_required(login_url="login/")
-def show_recent_order(request):
-    customer = Customer.objects.get(user=request.user)
-    # show only success payments
-    recent_order = Order.objects.filter(customer=customer, payment_status=True,
-                                 order_status="Completed").order_by('-last_update_date').first()
-    if recent_order:
+def customer_orders(request):
+    user = request.user
+    selected_status = request.GET.get('status')
+    context = dict()
+    error = {}
+    # try:
+    customer = Customer.objects.get(user=user)
+    if selected_status == 'all':
+        all_orders = Order.objects.all()
+        context['orders'] = all_orders
+    if selected_status == 'recent':
+        recent_order = Order.objects.filter(customer=customer, payment_status=True,
+                                            order_status="completed").order_by('-last_update_date').first()
         recent_order_item = OrderItem.objects.filter(order=recent_order)
         print(f"{recent_order_item = }")
-        context = {
-            'recent_order_item': recent_order_item,
-        }
-        return render(request, 'order/recent_order.html', context)
-    else:
-        context = {"no_orders": 'no order found'}
-        return JsonResponse(context, status=400)
-        # return render(request, 'order/order_history.html', context)
-
-
-
-@login_required(login_url="login/")
-def show_order_history(request):
-    customer = Customer.objects.get(user=request.user)
-    # show only success payments
-    order = Order.objects.filter(customer=customer, payment_status=True, order_status="Completed")
-    if order.exists():
-        ordered_items = OrderItem.objects.filter(order__in=order) # .order_by("")
-        context = {
-            'ordered_item': ordered_items,
-        }
-        return render(request, 'order/order_history.html', context)
-    else:
-        context = {"no_orders": 'no order found'}
-        return render(request, 'order/order_history.html', context)
-
-
-@login_required(login_url="login/")
-def show_pending_orders(request):
-    user = request.user
-    customer = Customer.objects.get(user=user)
-    pending_orders = Order.objects.filter(customer=customer, payment_status=False)
-    if pending_orders.exists():
-        pending_ordered_item = OrderItem.objects.filter(order__in=pending_orders)
-        context = {
-            'pending_ordered_item': pending_ordered_item
-        }
-        return render(request, 'order/pending_orders.html', context)
-    else:
-        return JsonResponse({'error': 'pending order doesnt exist'}, status=400)
+        context['orders'] = recent_order_item
+    if selected_status == 'completed':
+        completed_orders = Order.objects.filter(customer=customer, payment_status=True,
+                                             order_status="Completed")
+        if completed_orders.exists():
+            previous_order_history = OrderItem.objects.filter(order__in=completed_orders)
+            context['orders'] = previous_order_history
+        else:
+            error['order_history'] = "there are not orders"
+    if selected_status == 'failed' or selected_status == 'pending':
+        failed_orders = Order.objects.filter(customer=customer, payment_status=False)
+        if failed_orders.exists():
+            pending_ordered_item = OrderItem.objects.filter(order__in=failed_orders)
+            context['orders'] = pending_ordered_item
+        else:
+            error['pending_orders'] = "there are not failed orders"
+    ORDER_STATUS = Order._meta.get_field('order_status').choices
+    context['ORDER_STATUS'] = ORDER_STATUS
+    return render(request, "order/orders.html", context)
+    # except:
+    #     return JsonResponse(error, status=500)
 
 
 @login_required(login_url="login/")

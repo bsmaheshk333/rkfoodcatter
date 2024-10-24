@@ -104,9 +104,9 @@ class Customer(models.Model):
 
 
 ORDER_STATUS = [
-    ('pending', 'Pending'),
+    ('recent', 'Recent'),
     ('completed', 'Completed'),
-    ('canceled', 'Canceled'),
+    ('pending', 'Pending'),
     ('failed', 'failed')
 ]
 
