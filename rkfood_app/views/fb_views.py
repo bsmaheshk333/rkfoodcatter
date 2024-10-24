@@ -24,7 +24,7 @@ from django.http import HttpResponse
 from django.db import transaction, IntegrityError
 
 
-
+@login_required(login_url="login/")
 def home(request):
     try:
         context = {}
@@ -48,12 +48,17 @@ def home(request):
 @login_required(login_url="login/")
 def show_menu_items(request):
     restaurants = Restaurant.objects.all()
+    user_profile = request.user.customer_profile
     menu_items = []
     get_restaurant = request.POST.get('restaurant', None)
+    set_default = request.POST.get('set_default', None)
     if request.method == "POST":
         if get_restaurant:
             try:
                 selected_restaurant = Restaurant.objects.get(name=get_restaurant)
+                if set_default:
+                    customer_profile.default_restaurant = selected_restaurant
+                    user_profile.save()
                 # menu__restaurant -- Menu has a foreign key to Restaurant, so we can filter this way
                 menu_items = MenuItems.objects.filter(menu__restaurant=selected_restaurant)
             except Restaurant.DoesNotExist:
@@ -63,9 +68,8 @@ def show_menu_items(request):
         else:
             return JsonResponse({'error': 'cannot proceed the request.'}, status=400)
 
-    # cart, created = Cart.objects.get_or_create(customer=request.user)
-    # if cart.cart_items.exists():  # if cart is not empty
-    #     no_of_cart_item = cart.get_total_number()  # get the total qty in the cart
+    if user_profile.default_restaurant:
+        selected_restaurant = user_profile.default_restaurant
     context = {
         'menu_items': menu_items,
         # 'no_of_cart_item': no_of_cart_item,
@@ -123,10 +127,6 @@ def customer_profile(request, id):
         return JsonResponse({'error': 'Template does not exist'}, status=404)
 
 
-from django.contrib.auth import authenticate, login
-from django.shortcuts import render, redirect
-from django.http import HttpResponse
-
 def customer_login(request):
     errors = {}
     username = request.POST.get('username') if request.method == 'POST' else ''
@@ -182,9 +182,7 @@ def customer_register(request):
         password = request.POST.get('password', None).strip()
         email = request.POST.get('email', None).strip()
         phone = request.POST.get('phone', None).strip()
-        print(f"phone -> {phone = }")
         errors = {}
-
         if not username.islower():
             errors['error'] = 'please enter username in lowercase format.'
         # Validate email
@@ -234,14 +232,12 @@ def customer_register(request):
                     recipient_list=[email],
                 )
             return redirect("login")
-        except Exception as e:
-            print(f"Error occurred: {e}")
+        except:
             # if created delete it
             if created:
                 user.delete()
             errors['email'] = 'Failed to send confirmation email. Please try again.'
             return JsonResponse(errors, status=500)
-
     else:
         return render(request, "customer/register.html")
 
@@ -330,6 +326,7 @@ def customer_logout(request):
         return redirect("login")
     except:
         return render(request, "error_page.html")
+
 
 @login_required(login_url="login/")
 def search_menu_item(request):
@@ -497,15 +494,18 @@ def order_confirmation(request, order_id):
 @login_required(login_url="login/")
 def manage_delivery_status(request):
     user = request.user
-    ordered_items = OrderItem.objects.select_related('order').all()
+    selected_status = request.GET.get('status', 'all')
     DELIVERY_STATUS = Order._meta.get_field('delivery_status').choices
+    if selected_status == 'all':
+        ordered_items = OrderItem.objects.select_related('order').all()
+    else:
+        ordered_items = OrderItem.objects.select_related('order').filter(order__delivery_status=selected_status)
     if request.method == 'POST':
         delivery_status = request.POST.get('delivery_status')
-        order_id = request.POST.get('order_id')  # Including the order id from input to know which order to update
-        if delivery_status in dict(DELIVERY_STATUS):  # Validate if the status is in the choices
+        order_id = request.POST.get('order_id')
+        if delivery_status in dict(DELIVERY_STATUS):
             order = Order.objects.get(id=order_id)
-            order.delivery_status = delivery_status  # Update the delivery status
-            # send order confirmation mail to user
+            order.delivery_status = delivery_status
             send_mail(
                 subject="Update on Your Order Status",
                 message=f'Your current order Status: {order.delivery_status}\n'
@@ -513,10 +513,13 @@ def manage_delivery_status(request):
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[user.email],
             )
-            order.save()  # Save to the DB
+            order.save()
             return redirect("update_delivery_status")
-    return render(request, 'customer_ordered_delivery_status.html',
-                  context={'ordered_items': ordered_items, 'DELIVERY_STATUS': DELIVERY_STATUS})
+
+    return render(request, 'manage_delivery_status.html', {
+        'ordered_items': ordered_items,
+        'DELIVERY_STATUS': DELIVERY_STATUS,
+    })
 
 
 @login_required(login_url="login/")
@@ -570,6 +573,7 @@ def show_pending_orders(request):
         return JsonResponse({'error': 'pending order doesnt exist'}, status=400)
 
 
+@login_required(login_url="login/")
 def customer_feedback(request):
     error = {}
     rating: str = request.POST.get('rating').lower().strip()
@@ -602,6 +606,8 @@ def customer_feedback(request):
     else:
         return render(request, "base.html")
 
+
+@login_required(login_url="login/")
 def view_feedback(request):
     try:
         feedback = Feedback.objects.all().order_by("-posted_on")

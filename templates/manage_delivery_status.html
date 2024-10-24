@@ -30,11 +30,19 @@
         vertical-align: middle;
     }
 </style>
-
 <div class="container">
     <h5 style="color: #007bff">Order Management</h5>
     <hr>
     {% if request.user.is_staff %}
+        <div class="mb-3">
+            <a href="{% url 'update_delivery_status' %}?status=all" class="btn btn-outline-primary">All</a>
+            {% for status in DELIVERY_STATUS %}
+                <a href="{% url 'update_delivery_status' %}?status={{ status.0 }}" class="btn btn-outline-primary">
+                    {{ status.1 }}
+                </a>
+            {% endfor %}
+        </div>
+
         {% if ordered_items %}
             <div class="row">
                 {% for order_item in ordered_items %}
@@ -69,7 +77,9 @@
                                         </tr>
                                         <tr>
                                             <th scope="row">Delivery Status:</th>
-                                            <td style="color: black; background: pink; border-radius: 3px;">{{ order_item.order.delivery_status }}</td>
+                                            <td style="color: black; background: pink; border-radius: 3px;">
+                                                {{ order_item.order.delivery_status }}
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -105,14 +115,4 @@
         <a href="{% url 'base' %}" class="btn btn-primary">Home</a>
     {% endif %}
 </div>
-
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-        crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
-        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGaMrTwKgiRLS2s2PmqH0n6ja/"
-        crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
-        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy9Vb8U8FNXcpENHR1ljH0WWw5L7U5oC2BojG8C"
-        crossorigin="anonymous"></script>
 {% endblock %}

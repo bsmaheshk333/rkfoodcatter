@@ -88,9 +88,9 @@ class MenuItems(models.Model):
 
 
 class Customer(models.Model):
-    # one
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True,
                                 related_name="customer_profile")
+    default_restaurant = models.ForeignKey(Restaurant, on_delete=models.SET_NULL, null=True, blank=True)
     phone = models.CharField(max_length=12, unique=True, blank=False, null=False)
 
     def __str__(self):
