@@ -118,7 +118,7 @@ Login - RK FoodCatter
                     {% endfor %}
                 </div>
             {% endif %}
-            <form action="" method="POST">
+            <form action="" method="POST" onsubmit="showLoader()">
                 {% csrf_token %}
                 <div class="form-group">
                     <label for="username">Username</label>

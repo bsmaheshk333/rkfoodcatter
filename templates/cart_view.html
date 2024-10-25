@@ -6,68 +6,68 @@
 {% endblock %}
 
 {% block content %}
-<div class="container cart-container">
+<div class="container cart-container mt-5">
     <!-- Display messages -->
     {% if messages %}
-        <div class="alert alert-dismissible fade show" role="alert">
+        <div class="alert-container">
             {% for message in messages %}
-                <div class="alert alert-{{ message.tags }}">
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
                     {{ message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
             {% endfor %}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
         </div>
     {% endif %}
-    <!--  cart view content  -->
-    <div class="container cart-container">
-        <h2 class="text-center my-4">Food Cart</h2>
-        {% if cart_item %}
-        <div class="row">
-            <div class="col-md-8">
-                {% for item in cart_item %}
-                <div class="cart-item mb-4 p-3 border rounded shadow-sm">
-                    <img src="{{ item.item.image.url }}" alt="{{ item.item.name }}" class="img-fluid rounded">
-                    <div class="cart-item-details ml-3">
-                        <h5 class="font-weight-bold">{{ item.item.name }}</h5>
-                        <h6 class="text-muted">{{ item.item.description }}</h6>
-                        <p class="font-weight-bold">Price: <span class="text-success">{{ item.item.price }} Rs.</span></p>
-                        <div class="quantity-control d-flex align-items-center">
-                            <form action="{% url 'update_cart' item.item.slug %}" method="POST" class="d-flex">
-                                {% csrf_token %}
-                                <input type="submit" class="btn btn-sm btn-outline-danger mx-1" name="quantity" value="-">
-                                <span class="mx-2">{{ item.quantity }}</span>
-                                <input type="submit" class="btn btn-sm btn-outline-success mx-1" name="quantity" value="+">
-                            </form>
-                        </div>
+
+    <h4 class="text-left mb-4">Checkout Section</h4>
+    {% if cart_item %}
+    <div class="row">
+        <div class="col-md-8">
+            {% for item in cart_item %}
+            <div class="cart-item mb-4 p-3 border rounded shadow-sm d-flex align-items-center">
+                <img src="{{ item.item.image.url }}" alt="{{ item.item.name }}" class="img-fluid rounded" style="width: 80px; height: 80px;">
+
+                <div class="cart-item-details ml-3" style="flex-grow: 1;">
+                    <h5 class="font-weight-bold">{{ item.item.name }}</h5>
+                    <p class="text-muted mb-1">{{ item.item.description }}</p>
+                    <p class="font-weight-bold mb-1">Price: <span class="text-success">{{ item.item.price }} Rs.</span></p>
+
+                    <div class="quantity-control d-flex align-items-center">
+                        <form action="{% url 'update_cart' item.item.slug %}" method="POST" class="d-flex">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-danger mx-1" name="quantity" value="-">-</button>
+                            <span class="mx-2">{{ item.quantity }}</span>
+                            <button type="submit" class="btn btn-sm btn-outline-success mx-1" name="quantity" value="+">+</button>
+                        </form>
                     </div>
-                    <a href="{% url 'update_cart' item.item.slug %}" class="remove-item btn btn-md btn-outline-danger ml-auto">Remove</a>
                 </div>
-                {% endfor %}
+
+                <a href="{% url 'update_cart' item.item.slug %}" class="btn btn-outline-danger btn-sm ml-auto" style="align-self: start;">Remove</a>
             </div>
-            <div class="col-md-4">
-                <div class="cart-summary p-4 border rounded shadow-sm">
-                    <h4 class="text-center">Cart Summary</h4>
-                    <p>Total Items: <strong>{{ total_items }}</strong></p>
-                    <p>Total Price: <strong>{{ subtotal }} Rs.</strong></p>
-                    <form action="{% url 'checkout' %}" method="POST">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-success btn-block">Process to Checkout</button>
-                    </form>
-                </div>
-            </div>
+            {% endfor %}
         </div>
 
-        {% else %}
-            <div class="empty-cart text-center" style="margin-top: 30px; padding: 20px; border: 1px dashed #ccc; border-radius: 10px; background-color: #f9f9f9;">
-                <img src="{% static 'images/empty-cart.png' %}" alt="Empty Cart" style="width: 100px; height: auto; margin-bottom: 15px;">
-                <p style="font-size: 1.25rem; color: #555;">Your table is empty.</p>
-                <a href="{% url 'menu_item' %}" class="btn btn-primary">Continue Shopping</a>
+        <div class="col-md-4">
+            <div class="cart-summary p-4 border rounded shadow-sm">
+                <h4 class="text-center">Cart Summary</h4>
+                <p>Total Items: <strong>{{ total_items }}</strong></p>
+                <p>Total Price: <strong>{{ subtotal }} Rs.</strong></p>
+                <form action="{% url 'checkout' %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-success btn-block">Proceed to Checkout</button>
+                </form>
             </div>
-{% endif %}
-
+        </div>
     </div>
-</div>
 
+    {% else %}
+    <div class="empty-cart text-center mt-5 p-4 border border-secondary rounded bg-light">
+        <img src="{% static 'images/empty-cart.png' %}" alt="Empty Cart" style="width: 120px; height: auto; margin-bottom: 15px;">
+        <p class="lead text-muted">Your cart is empty.</p>
+        <a href="{% url 'menu_item' %}" class="btn btn-primary">Continue Shopping</a>
+    </div>
+    {% endif %}
+</div>
 {% endblock %}

@@ -50,49 +50,14 @@ justify-text: center;
         transform: scala(1.3);
         color: #ff6b4a;
     }
-
+    .resp-img {
+        width: 100%;
+        max-width: 250px;
+        border-radius: 8px;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
 </style>
-<div class="container form-container" id="rest-form">
-        <div class="col-md-6 col-lg-4">
-            <form id="select-restaurant" method="post" action="{% url 'menu_item' %}">
-                {% csrf_token %}
-                <div class="form-group">
-                    <label for="restaurant" class="form-label">Choose a Restaurant:</label>
-                    <select name="restaurant" id="restaurant" class="form-control" required>
-                        <option value="" disabled selected>Select a restaurant</option>
-                        {% for restaurant in restaurants %}
-                            <option value="{{ restaurant.name }}">{{ restaurant.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="form-group mt-3">
-                    <div class="form-check">
-                        <input type="checkbox" class="form-check-input" name="set_default" id="setDefault">
-                        <label class="form-check-label" for="setDefault">Set as default</label>
-                    </div>
-                </div>
-                <div class="form-group mt-3">
-                    <button type="submit" id="shown-menu" class="btn btn-outline-primary btn-block">Show Menu</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-{% if get_restaurant %}
-<b class="fa-solid fa-location-dot location-icon" style=""></b>
-<div style="display: flex; justify-content: center; justify-text: center;">
-    <span>
-        <strong style="color: #3cc221;">
-            {{get_restaurant}}</strong>
-    </span>
-    {% else %}
-    <span>
-        <strong style="display: flex; justify-content: center; justify-text: center; color: #eb6734;">
-            Please select the Restaurant</strong>
-    </span>
-    {% endif %}
-</div>
-
 
 <div id="scroll-btn" class="container mt-5 scroll-buttons">
     <a href="#breakfast" class="btn btn-outline-primary">Breakfast</a>
@@ -101,7 +66,14 @@ justify-text: center;
     <a href="#beverages" class="btn btn-outline-primary">Beverages</a>
 </div>
 
-<div class="container" id="restaurant_selected">
+<!-- Search Form -->
+<form action="{% url 'search_item' %}" method="post" class="form-inline my-2 my-lg-0 ml-3 mb-3">
+    {% csrf_token %}
+    <input class="form-control mr-sm-2" type="search" placeholder="Search item" aria-label="Search" name="query_item">
+    <button class="btn btn-outline-dark my-2 my-sm-0" type="submit">Search</button>
+</form>
+
+<div class="container">
     <!-- Breakfast Section -->
    <div id="menu-section" class="menu-section">
         <h2>Breakfast Menu</h2>
@@ -111,12 +83,13 @@ justify-text: center;
             <div class="col-sm-12 col-md-6 col-lg-4">
                 <div class="menu-item">
                     <a href="{% url 'detail_view' item.slug %}">
-                        <img src="{{ item.image.url }}" alt="{{ item.name }}">
+                        <img class="resp-img" src="{{ item.image.url }}" alt="{{ item.name }}">
                     </a>
+                    <strong><p style="color: red;font-family: system-ui;">{{ item.menu.restaurant.name }}</p></strong>
                     <h5>{{ item.name }}</h5>
                     <p>{{ item.description }}</p>
                     <p><strong>{{ item.price }} Rs.</strong></p>
-                    <form method="POST" action="{% url 'add_to_cart' item.id %}">
+                        <form method="POST" action="{% url 'add_to_cart' item.id %}">
                         {% csrf_token %}
                         <button class="btn btn-primary btn-block" type="submit" name="add">Order</button>
                     </form>
@@ -138,8 +111,9 @@ justify-text: center;
             <div class="col-sm-12 col-md-6 col-lg-4">
                 <div class="menu-item">
                     <a href="{% url 'detail_view' item.slug %}">
-                        <img src="{{ item.image.url }}" alt="{{ item.name }}">
+                        <img class="resp-img" src="{{ item.image.url }}" alt="{{ item.name }}">
                     </a>
+                    <p>{{ item.menu.restaurant.name }}</p>
                     <h5>{{ item.name }}</h5>
                     <p>{{ item.description }}</p>
                     <p><strong>{{ item.price }} Rs.</strong></p>
@@ -163,9 +137,10 @@ justify-text: center;
             {% if item.menu.menu_title|lower == "dinner" %}
             <div class="col-sm-12 col-md-6 col-lg-4">
                 <div class="menu-item">
-                    <a href="{% url 'detail_view' item.slug %}">
+                    <a class="resp-img" href="{% url 'detail_view' item.slug %}">
                         <img src="{{ item.image.url }}" alt="{{ item.name }}">
                     </a>
+                    <p>{{ item.menu.restaurant.name }}</p>
                     <h5>{{ item.name }}</h5>
                     <p>{{ item.description }}</p>
                     <p><strong>{{ item.price }} Rs.</strong></p>
@@ -192,8 +167,9 @@ justify-text: center;
             <div class="col-sm-12 col-md-6 col-lg-4">
                 <div class="menu-item">
                     <a href="{% url 'detail_view' item.slug %}">
-                        <img src="{{ item.image.url }}" alt="{{ item.name }}">
+                        <img class="resp-img" src="{{ item.image.url }}" alt="{{ item.name }}">
                     </a>
+                    <p>{{ item.menu.restaurant.name }}</p>
                     <h5>{{ item.name }}</h5>
                     <p>{{ item.description }}</p>
                     <p><strong>{{ item.price }} Rs.</strong></p>

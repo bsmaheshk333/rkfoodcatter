@@ -9,7 +9,7 @@ from rest_framework_simplejwt.views import (
 
 urlpatterns = [
     path("", fb_views.home, name="base"),
-    path("menu_items/", fb_views.show_menu_items, name="menu_item"),
+    # path("menu_items/", fb_views.show_menu_items, name="menu_item"),
     path("search_item/", fb_views.search_menu_item, name="search_item"),
     path('profile/<int:id>/', fb_views.customer_profile, name="profile"),
     path('login/', fb_views.customer_login, name="login"),

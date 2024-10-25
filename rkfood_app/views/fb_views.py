@@ -1,5 +1,3 @@
-import itertools
-
 from django.shortcuts import (render, redirect,get_object_or_404)
 from rkfood_app.models import (Restaurant,Menu,MenuItems,
                                Customer,Order, UserLoginOtp,
@@ -9,7 +7,6 @@ from django.urls import reverse
 from django.db.models import Q
 from django.template import TemplateDoesNotExist
 from django.contrib.auth import login, logout, authenticate
-# from django.contrib.auth.views import login_required, login_not_required ( not supported in django 4.2 version)
 from django.contrib.auth.decorators import login_required # use this instead
 from django.http import JsonResponse
 from django.contrib import messages
@@ -30,52 +27,33 @@ def home(request):
         context = {}
         # user = User.objects.get(username=request.user)
         no_of_cart_item = 0
-        if request.user.is_authenticated:
-            user = request.user.id
-            cart, created = Cart.objects.get_or_create(customer=user)
-            if cart.cart_items.exists():  # if cart is not empty
-                no_of_cart_item = cart.get_total_number()  # get the total qty in the cart
-                context['no_of_cart_item'] = no_of_cart_item
-                print(f"{no_of_cart_item = }")
-            context['no_of_cart_item'] = no_of_cart_item
-            return render(request, "base.html", context)
-        else:
-            return redirect("login")
+        user = request.user.id
+        cart, created = Cart.objects.get_or_create(customer=user)
+        if cart.cart_items.exists():
+            no_of_cart_item = cart.get_total_number()
+
+        menu_items = MenuItems.objects.all()
+        context = {'menu_items': menu_items,
+                   'no_of_cart_item': no_of_cart_item
+                   }
+        return render(request, "base.html", context)
     except TemplateDoesNotExist:
         return JsonResponse({'error': 'page not found'}, status=404)
 
 
 @login_required(login_url="login/")
 def show_menu_items(request):
-    restaurants = Restaurant.objects.all()
-    user_profile = request.user.customer_profile
-    menu_items = []
     get_restaurant = request.POST.get('restaurant', None)
-    set_default = request.POST.get('set_default', None)
-    if request.method == "POST":
-        if get_restaurant:
-            try:
-                selected_restaurant = Restaurant.objects.get(name=get_restaurant)
-                if set_default:
-                    customer_profile.default_restaurant = selected_restaurant
-                    user_profile.save()
-                # menu__restaurant -- Menu has a foreign key to Restaurant, so we can filter this way
-                menu_items = MenuItems.objects.filter(menu__restaurant=selected_restaurant)
-            except Restaurant.DoesNotExist:
-                return render(request, "menu_items.html",
-                              {'error': "Restaurant not found", 'menu_items': [],
-                               'restaurants': restaurants, 'get_restaurant': get_restaurant})
-        else:
-            return JsonResponse({'error': 'cannot proceed the request.'}, status=400)
-
-    if user_profile.default_restaurant:
-        selected_restaurant = user_profile.default_restaurant
-    context = {
-        'menu_items': menu_items,
-        # 'no_of_cart_item': no_of_cart_item,
-        'restaurants': restaurants,
-        'get_restaurant': get_restaurant}
-    return render(request, "menu_items.html", context)
+    try:
+        # selected_restaurant = Restaurant.objects.get(name=get_restaurant)
+        # # menu__restaurant -- Menu has a foreign key to Restaurant, so we can filter this way
+        # menu_items = MenuItems.objects.filter(menu__restaurant=selected_restaurant)
+        menu_items = MenuItems.objects.all()
+        context = {'menu_items': menu_items}
+        return render(request, "menu_items.html", context)
+    except MenuItems.DoesNotExist:
+        return render(request, "menu_items.html",
+                      {'error': "Restaurant not found",})
 
 
 @login_required(login_url="login/")
@@ -133,7 +111,7 @@ def customer_login(request):
     password = request.POST.get('password') if request.method == 'POST' else ''
 
     if request.user.is_authenticated:
-        return redirect('base')
+        return redirect('menu_item')
 
     if request.method == 'POST':
         if not username:

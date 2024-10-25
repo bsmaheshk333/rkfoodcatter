@@ -7,128 +7,120 @@
 
 {% block content %}
 <style>
-        body {
-            background-color: #f4f4f9;
-            font-family: 'Arial', sans-serif;
-        }
+    body {
+        background-color: #f4f4f9;
+        font-family: 'Arial', sans-serif;
+    }
 
-        .container {
-            margin-top: 20px;
-        }
+    .container {
+        margin-top: 20px;
+    }
 
-        /* Compact card layout for menu item */
+    /* Card layout for menu item */
+    .menu-item {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+        padding: 15px;
+        margin-bottom: 30px;
+    }
+
+    .menu-item img {
+        width: 100%;
+        max-width: 250px;
+        border-radius: 8px;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .menu-item img:hover {
+        transform: scale(1.03);
+    }
+
+    .menu-item .details {
+        flex: 1;
+        padding: 15px;
+    }
+
+    .menu-item h3 {
+        font-size: 1.5rem;
+        color: #333;
+        font-weight: 600;
+        margin-bottom: 10px;
+    }
+
+    .menu-item p {
+        font-size: 1rem;
+        color: #666;
+        margin-bottom: 10px;
+    }
+
+    .menu-item strong {
+        font-size: 1.2rem;
+        color: #333;
+    }
+
+    .rating i {
+        color: #f1c40f;
+        margin-right: 2px;
+    }
+
+    .btn-group {
+        display: flex;
+        gap: 10px;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
         .menu-item {
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
-            padding: 15px;
-            margin-bottom: 30px;
-            overflow: hidden;
+            flex-direction: column;
+            align-items: center;
         }
+    }
 
-        .menu-item img {
-            width: 50%;
-            height: auto; /* Ensures the height adjusts based on the aspect ratio */
-            border-radius: 6px;
-            object-fit: cover; /* Maintains aspect ratio, crops excess if necessary */
-        }
+    /* Comment section styling */
+    .comment-section {
+        background-color: #fff;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 30px;
+        box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+    }
 
-        @media (min-width: 768px) {
-            .menu-item img {
-                max-height: 400px; /* Limit max height on larger screens */
-            }
-        }
+    .comment-section h5 {
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: #333;
+    }
 
-        .menu-item h3 {
-            font-size: 1.8rem;
-            color: #333;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
+    .comment-form textarea {
+        border-radius: 6px;
+        border: 1px solid #ddd;
+        padding: 10px;
+        font-size: 0.95rem;
+        width: 100%;
+    }
 
-        .menu-item p {
-            font-size: 1rem;
-            color: #666;
-            margin-bottom: 10px;
-        }
+    .comment-list li {
+        background-color: #f9f9f9;
+        border-radius: 6px;
+        padding: 10px;
+        margin-bottom: 10px;
+    }
 
-        .menu-item strong {
-            font-size: 1.2rem;
-            color: #333;
-        }
+    .breadcrumb {
+        font-size: 0.85rem;
+        background-color: transparent;
+        margin-bottom: 15px;
+    }
 
-        .rating i {
-            color: #f1c40f;
-            margin-right: 2px;
-        }
-
-        .btn {
-            padding: 10px 20px;
-            font-size: 0.9rem;
-            border-radius: 6px;
-        }
-
-        /* Comment section styling */
-        .comment-section {
-            background-color: #fff;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 30px;
-            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        .comment-section h5 {
-            font-size: 1.4rem;
-            font-weight: 600;
-            color: #333;
-        }
-
-        .comment-form textarea {
-            border-radius: 6px;
-            border: 1px solid #ddd;
-            padding: 10px;
-            font-size: 0.95rem;
-            width: 100%;
-        }
-
-        .comment-list li {
-            background-color: #f9f9f9;
-            border-radius: 6px;
-            padding: 10px;
-            margin-bottom: 10px;
-        }
-
-        .comment-list .username {
-            font-weight: 700;
-            color: #333;
-        }
-
-        .breadcrumb {
-            font-size: 0.85rem;
-            background-color: transparent;
-            margin-bottom: 15px;
-        }
-
-        .breadcrumb a {
-            color: #2980b9;
-        }
-
-        .breadcrumb span {
-            color: #999;
-        }
-
-        /* Hover effects */
-        .btn-success:hover,
-        .btn-primary:hover {
-            background-color: #16a085;
-            border-color: #16a085;
-        }
-
-        .menu-item img:hover {
-            transform: scale(1.03);
-            transition: 0.3s ease;
-        }
-    </style>
+    .breadcrumb a {
+        color: #2980b9;
+    }
+</style>
 
 <div class="container">
     <!-- Breadcrumb navigation -->
@@ -139,10 +131,10 @@
 
     <!-- Item Details Section -->
     <div class="row menu-item">
-        <div class="col-md-6">
+        <div class="col-md-4">
             <img src="{{ item.image.url }}" alt="{{ item.name }}" class="img-fluid">
         </div>
-        <div class="col-md-6">
+        <div class="col-md-8 details">
             <h3>{{ item.name }}</h3>
             <p>{{ item.description }}</p>
             <p><strong>Price: ₹{{ item.price }}</strong></p>
@@ -160,9 +152,9 @@
             <!-- Add to Cart Form -->
             <form method="POST" action="{% url 'add_to_cart' item.id %}">
                 {% csrf_token %}
-                <div class="btn-group" role="group">
+                <div class="btn-group">
                     <button type="submit" class="btn btn-success">Add to Cart</button>
-                    <a href="{% url 'cart_view' %}" class="btn btn-primary ml-2">Go to cart</a>
+                    <a href="{% url 'cart_view' %}" class="btn btn-primary">Go to cart</a>
                 </div>
             </form>
         </div>

@@ -110,8 +110,13 @@ My Orders
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 
-    .payment-status.failed {
-        background-color: #ff4d4d;
+    .payment-status.paid {
+        background-color: green;
+        color: white;
+    }
+    .payment-status.unpaid {
+        background-color: red;
+        color: white;
     }
 
     /* Delivery status stepper */
@@ -174,15 +179,8 @@ My Orders
     }
 
 </style>
-
-<div class="container">
-    <nav class="breadcrumb">
-        <a href="{% url 'base' %}">Home</a>
-        <span>>></span>
-        <span>My Orders</span>
-    </nav>
-        <div class="card">
-            <div class="mb-3">
+        <div class="mt-3">
+            <div class="">
                 <a href="{% url 'orders' %}?status=recent&status=completed&status=failed&status=pending" class="btn btn-outline-primary">All</a>
                 {% for status in ORDER_STATUS %}
                     <a href="{% url 'orders' %}?status={{ status.0 }}" class="btn btn-outline-primary">
@@ -191,7 +189,12 @@ My Orders
                 {% endfor %}
             </div>
         </div>
-
+<div class="container">
+    <nav class="breadcrumb">
+        <a href="{% url 'base' %}">Home</a>
+        <span>>></span>
+        <span>My Orders</span>
+    </nav>
         {% if orders %}
         <ul class="order-list">
             {% for item in orders %}
@@ -216,7 +219,7 @@ My Orders
                 </div>
 
                 <!-- Payment Status styled as a gift card -->
-                <div class="payment-status {% if item.order.payment_status == 'FAILED' %}failed{% endif %}">
+                <div class="payment-status {% if item.order.payment_status == 'PAID' %}paid{% else %}unpaid{% endif %}">
                     {{ item.order.payment_status|yesno:"PAID,UNPAID" }}
                 </div>
 

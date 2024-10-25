@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>RKFoodCaters || Home</title>
+    <title>EatNow || Home</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
           crossorigin="anonymous">
@@ -11,12 +12,53 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
+
+    <style>
+      .star-rating {
+    direction: rtl;
+    display: inline-flex;
+    font-size: 2rem;
+    justify-content: flex-start;
+    }
+    .star-rating input[type="radio"] {
+        display: none;
+    }
+    .star-rating label {
+        color: lightgray;
+        cursor: pointer;
+    }
+    .star-rating input[type="radio"]:checked ~ label {
+        color: gold;
+    }
+    .star-rating label:hover,
+    .star-rating label:hover ~ label {
+        color: gold;
+    }
+    #rest-form {
+    padding-top: 20px;
+    display: flex;
+    justify-content: center;
+    justify-text: center;
+    }
+    .nav-link:hover {
+        background: #007ec2;
+        border-radius: 50px;
+        color: yellow;
+    }
+    .resp-img {
+        width: 100%;
+        max-width: 250px;
+        border-radius: 8px;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+    </style>
 </head>
 
-<body style="font-family; padding-top: 56px;">
+<body style="padding-top: 56px;">
 
 <nav class="navbar navbar-expand-lg navbar-light fixed-top">
-    <a class="navbar-brand" href="{% url 'base' %}">RKFoodCater</a>
+    <a class="navbar-brand" href="{% url 'base' %}">Easty</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
@@ -24,10 +66,7 @@
         {% if request.user.is_authenticated %}
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'menu_item' %}">Menu</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'orders' %}">Orders</a>
+                    <a class="nav-link" href="{% url 'orders' %}?status=recent">Orders</a>
                 </li>
                 {% if request.user.is_staff %}
                 <li class="nav-item">
@@ -37,14 +76,13 @@
                     <a class="nav-link" href="{% url 'view_feedback' %}">View Feedback</a>
                 </li>
                 {% endif %}
-
                 {% if request.user.is_staff %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'admin:index' %}">{{request.user}}</a>
+                    <a class="nav-link" href="{% url 'admin:index' %}">My Account</a>
                 </li>
                 {% else %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'profile' request.user.id %}">{{request.user}}</a>
+                    <a class="nav-link" href="{% url 'profile' request.user.id %}">My Account</a>
                 </li>
                 {% endif %}
                 <li class="nav-item">
@@ -56,12 +94,6 @@
             <i class="fas fa-shopping-cart"></i>
             <span class="cart-count">{{no_of_cart_item}}</span>
         </a>
-        <!-- Search Form -->
-        <form action="{% url 'search_item' %}" method="post" class="form-inline my-2 my-lg-0 ml-3">
-            {% csrf_token %}
-            <input class="form-control mr-sm-2" type="search" placeholder="Search item" aria-label="Search" name="query_item">
-            <button class="btn btn-outline-light my-2 my-sm-0" type="submit">Search</button>
-        </form>
         {% endif %}
     </div>
 </nav>
@@ -70,13 +102,177 @@
 
 {% endblock %}
 
+<div id="scroll-btn" class="container mt-5 scroll-buttons text-center">
+    <a href="#breakfast" class="btn btn-outline-primary">Breakfast</a>
+    <a href="#lunch" class="btn btn-outline-primary">Lunch</a>
+    <a href="#dinner" class="btn btn-outline-primary">Dinner</a>
+    <a href="#beverages" class="btn btn-outline-primary">Beverages</a>
+</div>
+
+<!-- Search Form -->
+<form action="{% url 'search_item' %}" method="post" class="form-inline my-2 my-lg-0 ml-3 mb-3">
+    {% csrf_token %}
+    <input class="form-control mr-sm-2" type="search" placeholder="Search item" aria-label="Search" name="query_item">
+    <button class="btn btn-outline-dark my-2 my-sm-0" type="submit">Search</button>
+</form>
+
+<div class="container">
+    <!-- Breakfast Section -->
+   <div id="menu-section" class="menu-section">
+        <h2>Breakfast Menu</h2>
+        <div class="row">
+            {% for item in menu_items %}
+            {% if item.menu.menu_title|lower == "breakfast" %}
+            <div class="col-sm-12 col-md-4 col-lg-4">
+                <div class="menu-item">
+                    <a href="{% url 'detail_view' item.slug %}">
+                        <img class="resp-img" src="{{ item.image.url }}" alt="{{ item.name }}">
+                    </a>
+                    <strong><p style="color: red;font-family: system-ui;">{{ item.menu.restaurant.name }}</p></strong>
+                    <h5>{{ item.name }}</h5>
+                    <p>{{ item.description }}</p>
+                    <p><strong>{{ item.price }} Rs.</strong></p>
+                        <form method="POST" action="{% url 'add_to_cart' item.id %}">
+                        {% csrf_token %}
+                        <button class="btn btn-primary btn-block" type="submit" name="add">Order</button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+            {% empty %}
+                <a href="#select-restaurant">Please select the restaurant</a>
+            {% endfor %}
+        </div>
+    </div>
+    <hr style="color: red;">
+    <!-- Lunch Section -->
+    <div id="lunch" class="menu-section">
+        <h2>Lunch Menu</h2>
+        <div class="row">
+            {% for item in menu_items %}
+            {% if item.menu.menu_title|lower == "lunch" %}
+            <div class="col-sm-12 col-md-6 col-lg-4">
+                <div class="menu-item">
+                    <a href="{% url 'detail_view' item.slug %}">
+                        <img class="resp-img" src="{{ item.image.url }}" alt="{{ item.name }}">
+                    </a>
+                    <p>{{ item.menu.restaurant.name }}</p>
+                    <h5>{{ item.name }}</h5>
+                    <p>{{ item.description }}</p>
+                    <p><strong>{{ item.price }} Rs.</strong></p>
+                    <form method="POST" action="{% url 'add_to_cart' item.id %}">
+                        {% csrf_token %}
+                        <button class="btn btn-primary btn-block" type="submit" name="add">Order</button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+            {% empty %}
+                <a href="#select-restaurant">Please select the restaurant</a>
+            {% endfor %}
+        </div>
+    </div>
+    <hr style="color: red;">
+    <div id="dinner" class="menu-section">
+        <h2>Dinner Menu</h2>
+        <div class="row">
+            {% for item in menu_items %}
+            {% if item.menu.menu_title|lower == "dinner" %}
+            <div class="col-sm-12 col-md-6 col-lg-4">
+                <div class="menu-item">
+                    <a class="resp-img" href="{% url 'detail_view' item.slug %}">
+                        <img src="{{ item.image.url }}" alt="{{ item.name }}">
+                    </a>
+                    <p>{{ item.menu.restaurant.name }}</p>
+                    <h5>{{ item.name }}</h5>
+                    <p>{{ item.description }}</p>
+                    <p><strong>{{ item.price }} Rs.</strong></p>
+                    <form method="POST" action="{% url 'add_to_cart' item.id %}">
+                        {% csrf_token %}
+                        <button class="btn btn-primary btn-block" type="submit" name="add">Order</button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+            {% empty %}
+                <a href="#select-restaurant">Please select the restaurant</a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <hr style="color: red;">
+    <!-- beverages -->
+    <div id="beverages" class="menu-section">
+        <h2>beverages Menu</h2>
+        <div class="row">
+            {% for item in menu_items %}
+            {% if item.menu.menu_title|lower == "beverages" %}
+            <div class="col-sm-12 col-md-6 col-lg-4">
+                <div class="menu-item">
+                    <a href="{% url 'detail_view' item.slug %}">
+                        <img class="resp-img" src="{{ item.image.url }}" alt="{{ item.name }}">
+                    </a>
+                    <p>{{ item.menu.restaurant.name }}</p>
+                    <h5>{{ item.name }}</h5>
+                    <p>{{ item.description }}</p>
+                    <p><strong>{{ item.price }} Rs.</strong></p>
+                    <form method="POST" action="{% url 'add_to_cart' item.id %}">
+                        {% csrf_token %}
+                        <button class="btn btn-primary btn-block" type="submit" name="add">Order</button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+            {% empty %}
+                <a href="#select-restaurant">Please select the restaurant</a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!--feedback form-->
+<div class="container mt-5">
+    <h2 style="color: green;">We Value Your Feedback!</h2>
+    <p style="color: grey">Please let us know how we can improve your experience.</p>
+    <form action="{% url 'feedback' %}" method="POST">
+        {% csrf_token %}
+        <!-- Rating -->
+        <div class="form-group">
+            <label for="rating">Rate Us</label>
+            <div class="star-rating">
+                <input type="radio" id="star5" name="rating" value="5" required/>
+                <label for="star5" title="5 stars">&#9733;</label>
+                <input type="radio" id="star4" name="rating" value="4" required/>
+                <label for="star4" title="4 stars">&#9733;</label>
+                <input type="radio" id="star3" name="rating" value="3" required/>
+                <label for="star3" title="3 stars">&#9733;</label>
+                <input type="radio" id="star2" name="rating" value="2" required/>
+                <label for="star2" title="2 stars">&#9733;</label>
+                <input type="radio" id="star1" name="rating" value="1" required/>
+                <label for="star1" title="1 star">&#9733;</label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="message">Your Feedback</label>
+            <textarea class="form-control" placeholder="please write your comment here..."
+                      id="message" name="message" rows="4" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Send Feedback</button>
+    </form>
+</div>
 
 <!-- Footer -->
-<footer class="footer bg-dark mt-5 p-3">
+<footer style="background-color: #007bff;;" class="footer mt-5 p-3">
     <div class="container text-center">
         <p style="color: white">&copy; 2024 Eatsy. All Rights Reserved.</p>
     </div>
 </footer>
+<script>
+    function showLoader() {
+        document.getElementById("loadingOverlay").style.display = "flex"; // Show loading overlay
+    }
+</script>
+
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" crossorigin="anonymous"></script>
