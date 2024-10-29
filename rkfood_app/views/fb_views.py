@@ -1,3 +1,5 @@
+import itertools
+
 from django.shortcuts import (render, redirect,get_object_or_404)
 from rkfood_app.models import (Restaurant,Menu,MenuItems,
                                Customer,Order, UserLoginOtp,
@@ -7,6 +9,7 @@ from django.urls import reverse
 from django.db.models import Q
 from django.template import TemplateDoesNotExist
 from django.contrib.auth import login, logout, authenticate
+# from django.contrib.auth.views import login_required, login_not_required ( not supported in django 4.2 version)
 from django.contrib.auth.decorators import login_required # use this instead
 from django.http import JsonResponse
 from django.contrib import messages
@@ -25,17 +28,14 @@ from django.db import transaction, IntegrityError
 def home(request):
     try:
         context = {}
-        # user = User.objects.get(username=request.user)
         no_of_cart_item = 0
         user = request.user.id
         cart, created = Cart.objects.get_or_create(customer=user)
-        if cart.cart_items.exists():
-            no_of_cart_item = cart.get_total_number()
-
-        menu_items = MenuItems.objects.all()
-        context = {'menu_items': menu_items,
-                   'no_of_cart_item': no_of_cart_item
-                   }
+        if cart.cart_items.exists():  # if cart is not empty
+            no_of_cart_item = cart.get_total_number()  # get the total qty in the cart
+            context['no_of_cart_item'] = no_of_cart_item
+            print(f"{no_of_cart_item = }")
+        context['no_of_cart_item'] = no_of_cart_item
         return render(request, "base.html", context)
     except TemplateDoesNotExist:
         return JsonResponse({'error': 'page not found'}, status=404)
@@ -51,6 +51,7 @@ def show_menu_items(request):
         menu_items = MenuItems.objects.all()
         context = {'menu_items': menu_items}
         return render(request, "menu_items.html", context)
+
     except MenuItems.DoesNotExist:
         return render(request, "menu_items.html",
                       {'error': "Restaurant not found",})
@@ -125,7 +126,7 @@ def customer_login(request):
                 login(request, user)
                 with open("user_logged_data.txt", mode="a") as log_file:
                     log_file.write(f"user: {request.user}\n")
-                return redirect('base')
+                return redirect('menu_item')
             else:
                 errors['invalid_credentials'] = "Invalid username or password."
 
@@ -434,6 +435,14 @@ def payment_selection(request, order_id):
                 order.delivery_status = "placed"
                 order.order_status = "completed"
                 # order.save()
+                send_mail(
+                    subject="Your payment is successful",
+                    message=f'Payment Mode: {payment_method}'
+                            f"\nOrder status: {order.order_status}"
+                            '\nRegards, RKFoodCatter. \nHappy Eating...',
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[user.email],
+                )
             elif payment_method == ['online',  'credit card']:
                 # temporarily setting it to false due to unavailability
                 order.payment_status = False
@@ -444,17 +453,17 @@ def payment_selection(request, order_id):
                 order.delivery_status = "Transaction failed"
                 order.order_status = "Failed"
                 order.delete()
-        send_mail(
-            subject="Your payment is successful",
-            message=f'Payment Mode: {payment_method}'
-                    f"\nOrder status: {order.order_status}"
-                    '\nRegards, RKFoodCatter. \nHappy Eating...',
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[user.email],
-        )
-        # FIXME currently not saving the order other than cash
-        order.save()
-        return redirect('order_confirmation', order_id=order.id)
+            # send_mail(
+            #     subject="Your payment is successful",
+            #     message=f'Payment Mode: {payment_method}'
+            #             f"\nOrder status: {order.order_status}"
+            #             '\nRegards, RKFoodCatter. \nHappy Eating...',
+            #     from_email=settings.DEFAULT_FROM_EMAIL,
+            #     recipient_list=[user.email],
+            # )
+            # FIXME currently not saving the order other than cash
+            order.save()
+            return redirect('order_confirmation', order_id=order.id)
 
     return render(request, 'payment_selection.html', {'order': order})
 
@@ -504,28 +513,29 @@ def manage_delivery_status(request):
 def customer_orders(request):
     user = request.user
     selected_status = request.GET.get('status')
+    print(request.GET, "status")
+    print(f"{selected_status = }")
     context = dict()
     error = {}
     # try:
     customer = Customer.objects.get(user=user)
     if selected_status == 'all':
-        all_orders = Order.objects.all()
+        all_orders = Order.objects.filter(customer=customer)
+        print(f"{all_orders = }")
         context['orders'] = all_orders
     if selected_status == 'recent':
-        recent_order = Order.objects.filter(customer=customer, payment_status=True,
-                                            order_status="completed").order_by('-last_update_date').first()
+        recent_order = Order.objects.filter(customer=customer,
+                                            payment_status=True,).order_by('-last_update_date').first()
         recent_order_item = OrderItem.objects.filter(order=recent_order)
-        print(f"{recent_order_item = }")
         context['orders'] = recent_order_item
-    if selected_status == 'completed':
-        completed_orders = Order.objects.filter(customer=customer, payment_status=True,
-                                             order_status="Completed")
-        if completed_orders.exists():
-            previous_order_history = OrderItem.objects.filter(order__in=completed_orders)
-            context['orders'] = previous_order_history
+    if selected_status == 'past':
+        past_orders = Order.objects.filter(customer=customer, payment_status=True)
+        if past_orders.exists():
+            past_order = OrderItem.objects.filter(order__in=past_orders)
+            context['orders'] = past_order
         else:
             error['order_history'] = "there are not orders"
-    if selected_status == 'failed' or selected_status == 'pending':
+    if selected_status == 'failed':
         failed_orders = Order.objects.filter(customer=customer, payment_status=False)
         if failed_orders.exists():
             pending_ordered_item = OrderItem.objects.filter(order__in=failed_orders)
@@ -534,6 +544,7 @@ def customer_orders(request):
             error['pending_orders'] = "there are not failed orders"
     ORDER_STATUS = Order._meta.get_field('order_status').choices
     context['ORDER_STATUS'] = ORDER_STATUS
+
     return render(request, "order/orders.html", context)
     # except:
     #     return JsonResponse(error, status=500)

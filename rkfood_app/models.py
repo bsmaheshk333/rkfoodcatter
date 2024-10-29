@@ -1,7 +1,5 @@
 import random
-
 from django.db import models
-import datetime
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.utils import timezone
@@ -29,10 +27,10 @@ Relationship:
    booking against each payment.
 """
 
-
 class Restaurant(models.Model):
     name = models.CharField(max_length=100, verbose_name='Restaurant Name')
-    address = models.TextField(max_length=500, verbose_name='address')
+    address = models.TextField(max_length=100, verbose_name='address')
+    city = models.CharField(max_length=50)
     phone_number = models.CharField(max_length=12)
     email_addr = models.EmailField()
     opens_at = models.TimeField(null=False, blank=False, verbose_name="opening time")
@@ -81,6 +79,8 @@ FOOD_CHOICES = [
 ]
 
 class MenuItems(models.Model):
+    # TODO - directly make a relation to Restaurant instead of going thru Menu (Remove Menu Model)
+    # restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE)
     menu = models.ForeignKey(Menu, on_delete=models.CASCADE, related_name='main_menu')
     name = models.CharField(max_length=100)
     image = models.ImageField(default="avatar.jpg", upload_to="menu_items/", verbose_name="image of the food")
@@ -111,9 +111,8 @@ class Customer(models.Model):
 
 ORDER_STATUS = [
     ('recent', 'Recent'),
-    ('completed', 'Completed'),
-    ('pending', 'Pending'),
-    ('failed', 'failed')
+    ('past', 'Past Orders'),
+    ('failed', 'Failed')
 ]
 
 PAYMENT_METHODS = [
@@ -131,16 +130,14 @@ DELIVERY_STATUS = [
 class Order(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name="customer_ordered")
     menu_item = models.ManyToManyField('MenuItems', through='OrderItem')
-    # if in case multiple restaurants
-    # restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE)
     order_date = models.DateTimeField(auto_now_add=True)
-    # order_qty = models.IntegerField()
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     payment_status = models.BooleanField(default=False)
     order_status = models.CharField(max_length=20, choices=ORDER_STATUS)
     payment_method = models.CharField(max_length=20, choices=PAYMENT_METHODS)
     last_update_date = models.DateTimeField(auto_now=True)
-    delivery_status = models.CharField(max_length=15, choices=DELIVERY_STATUS)
+    delivery_status = models.CharField(max_length=20, choices=DELIVERY_STATUS)
+    delivered_on = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
     def __str__(self):
         return (f"order{self.id}User:{self.customer.user} || Payment status: {self.payment_status} || Payment Method:{self.payment_method} || "

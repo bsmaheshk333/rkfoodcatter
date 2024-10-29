@@ -14,30 +14,31 @@
 
     .container {
         margin-top: 20px;
+        padding: 15px;
     }
 
     /* Card layout for menu item */
     .menu-item {
         display: flex;
         flex-wrap: wrap;
-        align-items: center;
+        align-items: flex-start;
         background-color: #fff;
         border-radius: 8px;
-        box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         padding: 15px;
-        margin-bottom: 30px;
+        margin-bottom: 20px;
+        transition: transform 0.3s;
+    }
+
+    .menu-item:hover {
+        transform: translateY(-3px);
     }
 
     .menu-item img {
         width: 100%;
-        max-width: 250px;
+        max-width: 200px;
         border-radius: 8px;
         object-fit: cover;
-        transition: transform 0.3s ease;
-    }
-
-    .menu-item img:hover {
-        transform: scale(1.03);
     }
 
     .menu-item .details {
@@ -48,7 +49,7 @@
     .menu-item h3 {
         font-size: 1.5rem;
         color: #333;
-        font-weight: 600;
+        font-weight: bold;
         margin-bottom: 10px;
     }
 
@@ -84,15 +85,15 @@
     /* Comment section styling */
     .comment-section {
         background-color: #fff;
-        padding: 15px;
+        padding: 20px;
         border-radius: 8px;
-        margin-top: 30px;
-        box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+        margin-top: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
 
     .comment-section h5 {
         font-size: 1.4rem;
-        font-weight: 600;
+        font-weight: bold;
         color: #333;
     }
 
@@ -102,6 +103,7 @@
         padding: 10px;
         font-size: 0.95rem;
         width: 100%;
+        resize: none;
     }
 
     .comment-list li {
@@ -109,25 +111,28 @@
         border-radius: 6px;
         padding: 10px;
         margin-bottom: 10px;
+        position: relative;
     }
 
-    .breadcrumb {
-        font-size: 0.85rem;
-        background-color: transparent;
-        margin-bottom: 15px;
-    }
-
-    .breadcrumb a {
+    .comment-list .username {
+        font-weight: bold;
         color: #2980b9;
+    }
+
+    .comment-list .comment-date {
+        font-size: 0.85rem;
+        color: #999;
+        position: absolute;
+        top: 10px;
+        right: 10px;
+    }
+
+    .comment-list .user-comment {
+        margin-top: 5px;
     }
 </style>
 
 <div class="container">
-    <!-- Breadcrumb navigation -->
-    <nav class="breadcrumb">
-        <a href="{% url 'base' %}">Home</a> <span>/</span>
-        <a href="{% url 'detail_view' item.slug %}">{{ item.name }}</a>
-    </nav>
 
     <!-- Item Details Section -->
     <div class="row menu-item">
@@ -154,7 +159,7 @@
                 {% csrf_token %}
                 <div class="btn-group">
                     <button type="submit" class="btn btn-success">Add to Cart</button>
-                    <a href="{% url 'cart_view' %}" class="btn btn-primary">Go to cart</a>
+                    <a href="{% url 'cart_view' %}" class="btn btn-primary">Go to Cart</a>
                 </div>
             </form>
         </div>
@@ -177,7 +182,7 @@
         {% endif %}
 
         <!-- Display existing comments -->
-        <h5 class="mt-4">Reviews ({{comment_count}})</h5>
+        <h5 class="mt-4">Reviews ({{ comment_count }})</h5>
         <ul class="comment-list">
             {% for cmt in comments %}
             <li>

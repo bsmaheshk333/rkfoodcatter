@@ -21,52 +21,68 @@
         </div>
     {% endif %}
 
-    <h4 class="text-left mb-4">Checkout Section</h4>
+    <h3 class="text-left mb-4">Checkout</h3>
     {% if cart_item %}
     <div class="row">
+        <!-- Cart Items Section -->
         <div class="col-md-8">
             {% for item in cart_item %}
-            <div class="cart-item mb-4 p-3 border rounded shadow-sm d-flex align-items-center">
-                <img src="{{ item.item.image.url }}" alt="{{ item.item.name }}" class="img-fluid rounded" style="width: 80px; height: 80px;">
+            <div class="cart-item mb-3 p-3 border rounded shadow-sm d-flex align-items-start bg-white">
+                <img src="{{ item.item.image.url }}" alt="{{ item.item.name }}" class="img-fluid rounded" style="width: 90px; height: 90px; object-fit: cover; margin-right: 15px;">
 
-                <div class="cart-item-details ml-3" style="flex-grow: 1;">
-                    <h5 class="font-weight-bold">{{ item.item.name }}</h5>
-                    <p class="text-muted mb-1">{{ item.item.description }}</p>
-                    <p class="font-weight-bold mb-1">Price: <span class="text-success">{{ item.item.price }} Rs.</span></p>
+                <div class="cart-item-details" style="flex-grow: 1;">
+                    <h5 class="font-weight-bold mb-1">{{ item.item.name }}</h5>
+                    <p class="text-muted small mb-1">{{ item.item.description }}</p>
+                    <p class="font-weight-bold text-success mb-1">{{ item.item.price }} Rs.</p>
 
-                    <div class="quantity-control d-flex align-items-center">
-                        <form action="{% url 'update_cart' item.item.slug %}" method="POST" class="d-flex">
+                    <!-- Quantity Control Buttons -->
+                    <div class="d-flex align-items-center mt-2">
+                        <form action="{% url 'update_cart' item.item.slug %}" method="POST" class="d-flex align-items-center">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-sm btn-outline-danger mx-1" name="quantity" value="-">-</button>
-                            <span class="mx-2">{{ item.quantity }}</span>
-                            <button type="submit" class="btn btn-sm btn-outline-success mx-1" name="quantity" value="+">+</button>
+                            <button type="submit" class="btn btn-outline-secondary btn-sm px-3" name="quantity" value="-">-</button>
+                            <span class="mx-2 font-weight-bold">{{ item.quantity }}</span>
+                            <button type="submit" class="btn btn-outline-secondary btn-sm px-3" name="quantity" value="+">+</button>
                         </form>
                     </div>
                 </div>
 
-                <a href="{% url 'update_cart' item.item.slug %}" class="btn btn-outline-danger btn-sm ml-auto" style="align-self: start;">Remove</a>
+                <!-- Remove Button -->
+                <form action="{% url 'update_cart' item.item.slug %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-link text-danger p-0 ml-auto">Remove</button>
+                </form>
             </div>
             {% endfor %}
         </div>
 
+        <!-- Cart Summary Section -->
         <div class="col-md-4">
-            <div class="cart-summary p-4 border rounded shadow-sm">
-                <h4 class="text-center">Cart Summary</h4>
-                <p>Total Items: <strong>{{ total_items }}</strong></p>
-                <p>Total Price: <strong>{{ subtotal }} Rs.</strong></p>
+            <div class="cart-summary p-4 border rounded shadow-sm bg-white">
+                <h4 class="text-center font-weight-bold mb-3">Summary</h4>
+                <hr>
+                <p class="d-flex justify-content-between">
+                    <span>Total Items:</span>
+                    <strong>{{ total_items }}</strong>
+                </p>
+                <p class="d-flex justify-content-between">
+                    <span>Total Price:</span>
+                    <strong>{{ subtotal }} Rs.</strong>
+                </p>
+                <hr>
                 <form action="{% url 'checkout' %}" method="POST">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-success btn-block">Proceed to Checkout</button>
+                    <button type="submit" class="btn btn-primary btn-block font-weight-bold" style="background-color: #fc8019; border-color: #fc8019;">Proceed to Checkout</button>
                 </form>
             </div>
         </div>
     </div>
 
     {% else %}
-    <div class="empty-cart text-center mt-5 p-4 border border-secondary rounded bg-light">
-        <img src="{% static 'images/empty-cart.png' %}" alt="Empty Cart" style="width: 120px; height: auto; margin-bottom: 15px;">
+    <!-- Empty Cart Section -->
+    <div class="empty-cart text-center mt-5 p-5 bg-light rounded shadow-sm">
+        <img src="{% static 'images/empty-cart.png' %}" alt="Empty Cart" style="width: 150px; height: auto; margin-bottom: 20px;">
         <p class="lead text-muted">Your cart is empty.</p>
-        <a href="{% url 'menu_item' %}" class="btn btn-primary">Continue Shopping</a>
+        <a href="{% url 'menu_item' %}" class="btn btn-primary" style="background-color: #fc8019; border-color: #fc8019;">Continue Shopping</a>
     </div>
     {% endif %}
 </div>
