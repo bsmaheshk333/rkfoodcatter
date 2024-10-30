@@ -8,7 +8,7 @@
 <style>
     .menu-section {
         margin-top: 2rem;
-        padding: 1rem 0;
+        padding: 1rem;
     }
     .menu-item {
         border-radius: 10px;
@@ -26,7 +26,7 @@
     }
     .menu-item:hover {
         transform: scale(1.05);
-        box-shadow: 0 0px 0px rgba(0, 0, 0, 0.15);
+        /*box-shadow: 0 0px 0px rgba(0, 0, 0, 0.15);*/
     }
 
     .menu-item h5 {
@@ -38,16 +38,38 @@
     .menu-item p {
         font-size: 0.9rem;
         color: #555;
+
         margin-bottom: 0.1rem;
 
     }
 
-    .menu-item strong {
-        font-size: 1rem;
+    .menu-item .food-name {
         color: black;
         font-weight: bold;
+        font-family: Georgia, serif;
+    }
+    .menu-item .city {
+        color: black;
+        font-weight: bold;
+        font-family: Georgia, serif;
+    }
+
+    .menu-item .city i {
+        color: #f59042;
+    }
+    .menu-item .food-price {
+        color: black;
+        font-weight: bold;
+        font-family: Georgia, serif;
+    }
+    .menu-item .restaurant-name {
+        color: black;
+        font-weight: bold;
+        font-family: Georgia, serif;
 
     }
+
+
 
     .star-rating {
         direction: rtl;
@@ -91,14 +113,14 @@
     <div class="search-form">
         <form action="{% url 'search_item' %}" method="post" class="form-inline my-2 my-lg-0">
             {% csrf_token %}
-            <input class="form-control mr-sm-2" type="search" placeholder="Search item" aria-label="Search" name="query_item" required>
+            <input class="form-control mr-sm-2" type="search" placeholder="Search for foods" aria-label="Search" name="query_item" required>
             <button class="btn btn-warning" type="submit">Search</button>
         </form>
     </div>
 
     <h2 style="font-family:monospace;">Top Restaurants food in Bangalore</h2>
     <hr>
-    <div id="menu-section" class="menu-section">
+    <div class="menu-section">
         <div class="row">
             {% for item in menu_items %}
             <div class="col-sm-6 col-md-6 col-lg-3">
@@ -106,11 +128,13 @@
                     <a href="{% url 'detail_view' item.slug %}">
                         <img class="resp-img" src="{{ item.image.url }}" alt="{{ item.name }}">
                     </a>
-
-                    <p><i class="fa fa-utensils" aria-hidden="true"></i> {{ item.menu.restaurant.name }}</p>
-                    <p>{{ item.name }}</p>
-                    <p><i class="fa fa-indian-rupee-sign" aria-hidden="true"></i> {{ item.price }}</p>
-                    <p><i class="fa fa-location-dot" aria-hidden="true"></i> {{ item.menu.restaurant.city }}</p>
+                    <p class="restaurant-name"><i class="fa fa-utensils" aria-hidden="true"></i>
+                        {{ item.menu.restaurant.name }}</p>
+                    <p class="food-name">{{ item.name }} </p>
+                    <p><i class="fa fa-indian-rupee-sign" aria-hidden="true"></i>
+                        {{ item.price }}</p>
+                    <p class="city"><i class="fa fa-location-dot" aria-hidden="true"></i>
+                        {{ item.menu.restaurant.city }}</p>
                 </div>
             </div>
             {% endfor %}
@@ -119,7 +143,7 @@
 </div>
 
 <!-- Feedback form -->
-<div class="container mt-5">
+<div class="container mt-5" id="Feedback">
     <h2 style="color: green;">We Value Your Feedback!</h2>
     <p style="color: grey">Please let us know how we can improve your experience.</p>
     <form action="{% url 'feedback' %}" method="POST">
